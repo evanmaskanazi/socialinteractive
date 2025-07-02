@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: therapy-companion
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn enhanced_therapy_backend:app"
+    envVars:
+      - key: PRODUCTION
+        value: true
+      - key: SYSTEM_EMAIL
+        sync: false
+      - key: SYSTEM_EMAIL_PASSWORD
+        sync: false
+      - key: SMTP_SERVER
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SYSTEM_NAME
+        value: Therapeutic Companion System
+      - key: ACCESS_CODE
+        sync: false

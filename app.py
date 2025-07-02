@@ -27,7 +27,7 @@ def check_files():
     required_files = [
         'socialworkcountry.py',
         'input_validation.py',
-        'web_backend.py',
+        'enhanced_therapy_backend.py',
         'client.html',
         'requirements.txt'
     ]
@@ -101,7 +101,7 @@ def start_application():
         if '.' not in sys.path:
             sys.path.insert(0, '.')
 
-        from web_backend import app
+        from enhanced_therapy_backend import app
         print("✅ Web backend imported successfully")
         print("✅ Therapy companion logic loaded")
         print("✅ Social worker assessment logic loaded")
@@ -137,9 +137,9 @@ def start_application():
         )
 
     except ImportError as e:
-        print(f"❌ Error importing web_backend: {e}")
+        print(f"❌ Error importing enhanced_therapy_backend: {e}")
         print("💡 Make sure all Python files are in the same directory")
-        print("💡 Check that web_backend.py imports are correct")
+        print("💡 Check that enhanced_therapy_backend.py imports are correct")
         input("\nPress Enter to exit...")
     except KeyboardInterrupt:
         print("\n\n🛑 Server stopped by user")
@@ -159,7 +159,7 @@ def show_project_info():
         'client.html': 'Web interface with therapy tracking',
         'socialworkcountry.py': 'Social worker assessment logic',
         'input_validation.py': 'Input validation system',
-        'web_backend.py': 'Flask server and API endpoints',
+        'enhanced_therapy_backend.py': 'Flask server and API endpoints',
         'requirements.txt': 'Python package dependencies',
         'main.py': 'This runner script'
     }

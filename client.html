@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Social Worker Assessment - Full Stack</title>
+    <title>Therapeutic Social Companion</title>
     <style>
         * {
             margin: 0;
@@ -12,177 +13,378 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+            background-color: #4CAF50;
             color: white;
-            padding: 30px;
+            padding: 1.5rem;
             text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0;
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .content-tabs {
+        /* Navigation Tabs */
+        .tab-container {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 2rem;
             display: flex;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
+            gap: 1rem;
+            overflow-x: auto;
         }
 
         .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
+            padding: 1rem 1.5rem;
             cursor: pointer;
             border: none;
-            background: transparent;
-            font-size: 16px;
+            background: none;
+            font-size: 1rem;
+            color: #666;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
         }
 
-        .tab.active {
-            background: white;
+        .tab:hover {
             color: #4CAF50;
+        }
+
+        .tab.active {
+            color: #4CAF50;
+            border-bottom-color: #4CAF50;
             font-weight: 600;
         }
 
+        /* Content Container */
+        .content-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Tab Content */
         .tab-content {
             display: none;
-            padding: 40px;
+            animation: fadeIn 0.3s ease-in;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 1.1em;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background-color: #fafafa;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .validation-message {
-            margin-top: 8px;
-            font-size: 14px;
-            padding: 8px 12px;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .validation-message.error {
-            background-color: #ffebee;
-            color: #c62828;
-            border-left: 4px solid #f44336;
-        }
-
-        .validation-message.success {
-            background-color: #e8f5e8;
-            color: #2e7d32;
-            border-left: 4px solid #4caf50;
-        }
-
-        .validation-message.warning {
-            background-color: #fff3e0;
-            color: #ef6c00;
-            border-left: 4px solid #ff9800;
-        }
-
-        .validation-message.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .submit-btn {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            padding: 15px 40px;
-            border: none;
+        /* Form Styles */
+        .form-section {
+            background: #f8f9fa;
             border-radius: 8px;
-            font-size: 18px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="time"],
+        input[type="number"],
+        input[type="week"],
+        input[type="password"],
+        select,
+        textarea {
             width: 100%;
-            margin-top: 20px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
         }
 
-        .submit-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
         }
 
-        .submit-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
-        .loading {
-            display: none;
+        /* Button Styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: inline-block;
             text-align: center;
-            padding: 20px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Rating Scale */
+        .rating-scale {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .rating-button {
+            min-width: 4.5rem;
+            height: auto;
+            min-height: 4rem;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .rating-button:hover {
+            border-color: #4CAF50;
+            transform: scale(1.05);
+        }
+
+        .rating-button.selected {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .rating-button .emoji {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .rating-button .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .rating-button .label {
+            font-size: 0.75rem;
+            font-weight: normal;
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            font-weight: 600;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #0d47a1;
+        }
+
+        /* Week Grid */
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .day-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .day-card.completed {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .day-card.missed {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .day-card h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        /* Patient List */
+        .patient-list {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .patient-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .patient-info h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .patient-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4CAF50;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto;
         }
 
         @keyframes spin {
@@ -190,715 +392,1054 @@
             100% { transform: rotate(360deg); }
         }
 
-        .results-container {
-            margin-top: 30px;
-        }
-
-        .assessment-card {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 5px solid #4CAF50;
-        }
-
-        .assessment-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .risk-indicator {
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .risk-low {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border: 1px solid #4caf50;
-        }
-
-        .risk-high {
-            background: #fff3e0;
-            color: #ef6c00;
-            border: 1px solid #ff9800;
-        }
-
-        .risk-critical {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #f44336;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-
-        .crisis-alert {
-            background: #ffebee;
-            border: 2px solid #f44336;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .crisis-alert.show {
-            display: block;
-        }
-
-        .crisis-alert h3 {
-            color: #c62828;
-            margin-bottom: 15px;
-        }
-
-        .emergency-contacts {
-            background: #f44336;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .recommendation-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .recommendation-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            position: relative;
-            padding-left: 25px;
-        }
-
-        .recommendation-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .save-btn {
-            background: linear-gradient(135deg, #2196F3, #1976D2);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .country-context {
-            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .help-text {
-            font-size: 13px;
-            color: #666;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .container {
-                margin: 10px;
+            .header h1 {
+                font-size: 2rem;
             }
 
-            .content-tabs {
-                flex-direction: column;
+            .tab-container {
+                padding: 0 1rem;
             }
 
-            .tab-content {
-                padding: 20px;
+            .content-container {
+                padding: 0 1rem;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .week-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🌍 Global Social Worker Assessment</h1>
-            <p>Full-stack application with Python backend integration</p>
-        </div>
+    <div class="header">
+        <h1>Therapeutic Social Companion</h1>
+    </div>
 
-        <div class="content-tabs">
-            <button class="tab active" onclick="showTab('assessment')">Patient Assessment</button>
-            <button class="tab" onclick="showTab('results')">Results & Analysis</button>
-        </div>
+    <div class="tab-container">
+        <button class="tab active" onclick="showTab('enrollment')">Patient Enrollment</button>
+        <button class="tab" onclick="showTab('checkin')">Daily Check-In</button>
+        <button class="tab" onclick="showTab('progress')">Week Progress</button>
+        <button class="tab" onclick="showTab('management')">Patient Management</button>
+        <button class="tab" onclick="showTab('reports')">Generate Reports</button>
+    </div>
 
-        <div id="assessment" class="tab-content active">
-            <form id="patientForm">
-                <div class="form-group">
-                    <label for="name">Patient Name or Initials</label>
-                    <input type="text" id="name" name="name" placeholder="e.g., John Doe or J.D." maxlength="100">
-                    <div class="validation-message" id="nameMessage"></div>
-                    <div class="help-text">Enter full name or initials for privacy protection</div>
+    <div class="content-container">
+        <!-- Success/Error Messages -->
+        <div id="successMessage" class="message success"></div>
+        <div id="errorMessage" class="message error"></div>
+
+        <!-- Patient Enrollment Tab -->
+        <div id="enrollment" class="tab-content active">
+            <div class="section-header">
+                <h2>Patient Enrollment</h2>
+                <p>Register a new patient for weekly therapy tracking</p>
+            </div>
+
+            <form id="enrollmentForm" class="form-section">
+                <div class="info-box">
+                    <p>Access code required for patient enrollment</p>
                 </div>
 
                 <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" name="age" min="0" max="120" placeholder="e.g., 35">
-                    <div class="validation-message" id="ageMessage"></div>
+                    <label for="accessCode">Access Code*</label>
+                    <input type="password" id="accessCode" name="accessCode" required
+                           placeholder="Enter access code">
                 </div>
 
-                <div class="form-group">
-                    <label for="country">Country</label>
-                    <select id="country" name="country">
-                        <option value="">Select a country...</option>
-                        <option value="united_states">🇺🇸 United States</option>
-                        <option value="canada">🇨🇦 Canada</option>
-                        <option value="united_kingdom">🇬🇧 United Kingdom</option>
-                        <option value="australia">🇦🇺 Australia</option>
-                        <option value="germany">🇩🇪 Germany</option>
-                        <option value="japan">🇯🇵 Japan</option>
-                        <option value="india">🇮🇳 India</option>
-                        <option value="brazil">🇧🇷 Brazil</option>
-                        <option value="south_africa">🇿🇦 South Africa</option>
-                        <option value="sweden">🇸🇪 Sweden</option>
-                        <option value="israel">🇮🇱 Israel</option>
-                        <option value="france">🇫🇷 France</option>
-                    </select>
-                    <div class="validation-message" id="countryMessage"></div>
+                <div class="two-column">
+                    <div>
+                        <div class="form-group">
+                            <label for="patientId">Patient ID*</label>
+                            <input type="text" id="patientId" name="patientId" required
+                                   placeholder="e.g., P001" pattern="[A-Za-z0-9]+"
+                                   title="Letters and numbers only">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientName">Patient Name*</label>
+                            <input type="text" id="patientName" name="patientName" required
+                                   placeholder="Full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientAge">Age*</label>
+                            <input type="number" id="patientAge" name="patientAge"
+                                   min="1" max="120" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientGender">Gender</label>
+                            <select id="patientGender" name="patientGender">
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer_not_say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label for="therapistName">Therapist Name*</label>
+                            <input type="text" id="therapistName" name="therapistName" required
+                                   placeholder="Dr. Smith">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="therapistEmail">Therapist Email*</label>
+                            <input type="email" id="therapistEmail" name="therapistEmail" required
+                                   placeholder="therapist@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="enrollmentDate">Enrollment Date*</label>
+                            <input type="date" id="enrollmentDate" name="enrollmentDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientNotes">Additional Notes</label>
+                            <textarea id="patientNotes" name="patientNotes"
+                                      placeholder="Any special considerations..."></textarea>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="city">City/Location</label>
-                    <input type="text" id="city" name="city" placeholder="e.g., New York, London, Tokyo" maxlength="100">
-                    <div class="validation-message" id="cityMessage"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="gender">Gender</label>
-                    <select id="gender" name="gender">
-                        <option value="">Select gender...</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="non_binary">Non-binary</option>
-                        <option value="prefer_not_to_say">Prefer not to say</option>
-                    </select>
-                    <div class="validation-message" id="genderMessage"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="employment">Employment Status</label>
-                    <select id="employment" name="employment">
-                        <option value="">Select employment status...</option>
-                        <option value="full_time">Full-time employed</option>
-                        <option value="part_time">Part-time employed</option>
-                        <option value="unemployed_seeking">Unemployed - actively seeking</option>
-                        <option value="unemployed_not_seeking">Unemployed - not seeking</option>
-                        <option value="student">Student</option>
-                        <option value="retired">Retired</option>
-                        <option value="unable_to_work">Unable to work</option>
-                    </select>
-                    <div class="validation-message" id="employmentMessage"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="financial">Financial Status</label>
-                    <select id="financial" name="financial">
-                        <option value="">Select financial status...</option>
-                        <option value="low_income">Low income - difficulty meeting basic needs</option>
-                        <option value="moderate_income">Moderate income - meets basic needs with constraints</option>
-                        <option value="stable_income">Stable income - comfortable with discretionary spending</option>
-                    </select>
-                    <div class="validation-message" id="financialMessage"></div>
-                    <div class="help-text" id="financialHelp">Relative to local country standards</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="exercise">Exercise Level</label>
-                    <select id="exercise" name="exercise">
-                        <option value="">Select exercise level...</option>
-                        <option value="very_active">Very active (5+ times per week)</option>
-                        <option value="moderately_active">Moderately active (3-4 times per week)</option>
-                        <option value="lightly_active">Lightly active (1-2 times per week)</option>
-                        <option value="sedentary">Sedentary (little to no exercise)</option>
-                    </select>
-                    <div class="validation-message" id="exerciseMessage"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="mental">Mental State Assessment</label>
-                    <select id="mental" name="mental">
-                        <option value="">Select mental state...</option>
-                        <option value="excellent">Excellent - feeling very positive and energetic</option>
-                        <option value="good">Good - generally positive with minor concerns</option>
-                        <option value="fair">Fair - some challenges but managing</option>
-                        <option value="poor">Poor - struggling with daily activities</option>
-                        <option value="critical">Critical - severe distress or crisis</option>
-                    </select>
-                    <div class="validation-message" id="mentalMessage"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="notes">Additional Notes</label>
-                    <textarea id="notes" name="notes" placeholder="Any additional concerns, symptoms, or relevant information..." maxlength="1000"></textarea>
-                    <div class="validation-message" id="notesMessage"></div>
-                    <div class="help-text">Optional: Provide any additional relevant information (max 1000 characters)</div>
-                </div>
-
-                <div class="crisis-alert" id="crisisAlert">
-                    <h3>⚠️ Crisis Indicators Detected</h3>
-                    <p>Based on the information provided, immediate professional assessment may be needed.</p>
-                    <div class="emergency-contacts" id="emergencyContacts"></div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    Generate Assessment
-                </button>
+                <button type="submit" class="btn">Enroll Patient</button>
             </form>
+        </div>
 
-            <div class="loading" id="loadingIndicator">
-                <div class="spinner"></div>
-                <p>Processing assessment with AI analysis...</p>
+        <!-- Daily Check-In Tab -->
+        <div id="checkin" class="tab-content">
+            <div class="section-header">
+                <h2>Daily Check-In</h2>
+                <p>Record patient's daily emotional state, medication adherence, and physical activity</p>
+            </div>
+
+            <form id="checkinForm" class="form-section">
+                <div class="form-group">
+                    <label for="checkinPatientId">Patient ID*</label>
+                    <select id="checkinPatientId" name="checkinPatientId" required>
+                        <option value="">Select Patient</option>
+                    </select>
+                </div>
+
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="checkinDate">Date*</label>
+                        <input type="date" id="checkinDate" name="checkinDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkinTime">Time*</label>
+                        <input type="time" id="checkinTime" name="checkinTime" required>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <p>Please complete all three assessment areas below</p>
+                </div>
+
+                <!-- Emotional State -->
+                <div class="form-group">
+                    <label>Emotional State*</label>
+                    <p style="color: #666; margin-bottom: 0.5rem;">How are you feeling emotionally today?</p>
+                    <div class="rating-scale">
+                        <button type="button" class="rating-button" data-category="emotional" data-value="1">
+                            <span class="emoji">😢</span>
+                            <span>1</span>
+                            <span class="label">Very Poor</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="emotional" data-value="2">
+                            <span class="emoji">😟</span>
+                            <span>2</span>
+                            <span class="label">Poor</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="emotional" data-value="3">
+                            <span class="emoji">😐</span>
+                            <span>3</span>
+                            <span class="label">Fair</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="emotional" data-value="4">
+                            <span class="emoji">🙂</span>
+                            <span>4</span>
+                            <span class="label">Good</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="emotional" data-value="5">
+                            <span class="emoji">😄</span>
+                            <span>5</span>
+                            <span class="label">Excellent</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="emotionalValue" name="emotionalValue" required>
+                    <textarea id="emotionalNotes" name="emotionalNotes" placeholder="Optional notes about emotional state..."
+                              style="margin-top: 1rem;"></textarea>
+                </div>
+
+                <!-- Medication Adherence -->
+                <div class="form-group">
+                    <label>Medication Adherence*</label>
+                    <p style="color: #666; margin-bottom: 0.5rem;">Did you take your medication as prescribed?</p>
+                    <div class="rating-scale">
+                        <button type="button" class="rating-button" data-category="medication" data-value="0">
+                            <span class="label">Not<br>Applicable</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="medication" data-value="1">
+                            <span class="label">No<br>Doses</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="medication" data-value="3">
+                            <span class="label">Partial<br>Doses</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="medication" data-value="5">
+                            <span class="label">Yes,<br>All Doses</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="medicationValue" name="medicationValue" required>
+                    <textarea id="medicationNotes" name="medicationNotes" placeholder="Optional notes about medication..."
+                              style="margin-top: 1rem;"></textarea>
+                </div>
+
+                <!-- Physical Activity -->
+                <div class="form-group">
+                    <label>Physical Activity*</label>
+                    <p style="color: #666; margin-bottom: 0.5rem;">How much physical activity did you do today?</p>
+                    <div class="rating-scale">
+                        <button type="button" class="rating-button" data-category="activity" data-value="1">
+                            <span class="icon">🛌</span>
+                            <span>1</span>
+                            <span class="label">No Activity</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="activity" data-value="2">
+                            <span class="icon">🚶</span>
+                            <span>2</span>
+                            <span class="label">Light</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="activity" data-value="3">
+                            <span class="icon">🚴</span>
+                            <span>3</span>
+                            <span class="label">Moderate</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="activity" data-value="4">
+                            <span class="icon">🏃</span>
+                            <span>4</span>
+                            <span class="label">Active</span>
+                        </button>
+                        <button type="button" class="rating-button" data-category="activity" data-value="5">
+                            <span class="icon">🏋️</span>
+                            <span>5</span>
+                            <span class="label">Very Active</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="activityValue" name="activityValue" required>
+                    <textarea id="activityNotes" name="activityNotes" placeholder="Optional notes about physical activity..."
+                              style="margin-top: 1rem;"></textarea>
+                </div>
+
+                <button type="submit" class="btn">Submit Daily Check-In</button>
+            </form>
+        </div>
+
+        <!-- Week Progress Tab -->
+        <div id="progress" class="tab-content">
+            <div class="section-header">
+                <h2>Week Progress</h2>
+                <p>View patient's weekly check-in status and responses</p>
+            </div>
+
+            <div class="form-section">
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="progressPatientId">Select Patient</label>
+                        <select id="progressPatientId" name="progressPatientId">
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="progressWeek">Select Week</label>
+                        <input type="week" id="progressWeek" name="progressWeek">
+                    </div>
+                </div>
+
+                <button type="button" class="btn" onclick="loadWeekProgress()">Load Week Data</button>
+                <button type="button" class="btn btn-secondary" onclick="refreshWeekProgress()" style="margin-left: 1rem;">Refresh</button>
+            </div>
+
+            <div id="weekProgressDisplay" style="display: none;">
+                <h3 style="margin: 2rem 0 1rem;">Week Overview</h3>
+                <div id="weekGrid" class="week-grid"></div>
+
+                <h3 style="margin: 2rem 0 1rem;">Daily Details</h3>
+                <div id="weekDetails"></div>
             </div>
         </div>
 
-        <div id="results" class="tab-content">
-            <div id="resultsContainer">
-                <p style="text-align: center; color: #666; font-style: italic;">
-                    Complete the assessment form to see detailed analysis and recommendations.
-                </p>
+        <!-- Patient Management Tab -->
+        <div id="management" class="tab-content">
+            <div class="section-header">
+                <h2>Patient Management</h2>
+                <p>View and manage enrolled patients</p>
+            </div>
+
+            <div id="patientListContainer" class="patient-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading patients...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="section-header">
+                <h2>Generate Reports</h2>
+                <p>Generate weekly Excel reports for therapists</p>
+            </div>
+
+            <div class="form-section">
+                <div class="two-column">
+                    <div class="form-group">
+                        <label for="reportPatientId">Select Patient</label>
+                        <select id="reportPatientId" name="reportPatientId">
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reportWeek">Select Week</label>
+                        <input type="week" id="reportWeek" name="reportWeek">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn" onclick="generateExcelReport()">Generate Excel Report</button>
+                    <button type="button" class="btn btn-secondary" onclick="prepareEmailReport()">Prepare Email Report</button>
+                </div>
+            </div>
+
+            <div id="reportStatus" style="margin-top: 2rem; display: none;">
+                <h3>Report Status</h3>
+                <div id="reportStatusContent"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // FIXED: Smart API URL detection - works for both local development and production
-        let API_BASE_URL;
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            // Local development
-            API_BASE_URL = 'http://localhost:5000/api';
-            console.log('Running locally - using localhost API');
-        } else {
-            // Production - use same domain as the website
-            API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
-            console.log('Running in production - using current domain API');
+        // Global variables
+        let currentTab = 'enrollment';
+        let enrolledPatients = [];
+        //let authToken = 'development-only-token'; // Default token for development
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Therapeutic Companion initialized');
+
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('enrollmentDate').value = today;
+            document.getElementById('checkinDate').value = today;
+
+            // Set current time
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('checkinTime').value = `${hours}:${minutes}`;
+
+            // Set current week
+            const weekInputs = document.querySelectorAll('input[type="week"]');
+            const currentWeek = getISOWeek(new Date());
+            weekInputs.forEach(input => input.value = currentWeek);
+
+            // Load patients
+            loadPatients();
+
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        // Helper function to get auth headers
+        function getAuthHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                //'Authorization': `Bearer ${authToken}`
+            };
         }
 
-        console.log('API_BASE_URL set to:', API_BASE_URL);
-
-        let currentAssessment = null;
-        let crisisDetected = false;
-
+        // Tab switching
         function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            console.log('Switching to tab:', tabName);
 
-            document.querySelectorAll('.tab').forEach(tab => {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
 
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab
             document.getElementById(tabName).classList.add('active');
 
-            // Find and activate the correct tab button
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                if (tab.textContent.toLowerCase().includes(tabName.toLowerCase())) {
-                    tab.classList.add('active');
-                }
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+
+            currentTab = tabName;
+
+            // Load data based on tab
+            if (tabName === 'management') {
+                loadPatientManagement();
+            }
+
+            // Clear messages
+            clearMessages();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            console.log('Setting up event listeners');
+
+            // Enrollment form
+            document.getElementById('enrollmentForm').addEventListener('submit', enrollPatient);
+
+            // Check-in form
+            document.getElementById('checkinForm').addEventListener('submit', submitDailyCheckIn);
+
+            // Rating buttons
+            document.querySelectorAll('.rating-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    const value = this.dataset.value;
+
+                    console.log('Rating selected:', category, value);
+
+                    // Remove selected class from other buttons in same category
+                    document.querySelectorAll(`.rating-button[data-category="${category}"]`).forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+
+                    // Add selected class to clicked button
+                    this.classList.add('selected');
+
+                    // Set hidden input value
+                    if (category === 'emotional') {
+                        document.getElementById('emotionalValue').value = value;
+                    } else if (category === 'medication') {
+                        document.getElementById('medicationValue').value = value;
+                    } else if (category === 'activity') {
+                        document.getElementById('activityValue').value = value;
+                    }
+                });
             });
         }
 
-        function validateField(fieldName, value) {
-            const messageEl = document.getElementById(`${fieldName}Message`);
+        // Enroll patient
+        async function enrollPatient(event) {
+            event.preventDefault();
+            console.log('Enrolling patient...');
 
-            let isValid = true;
-            let message = '';
-            let type = 'success';
+            const formData = new FormData(event.target);
+            const patientData = {
+                patientId: formData.get('patientId'),
+                name: formData.get('patientName'),
+                age: formData.get('patientAge'),
+                gender: formData.get('patientGender'),
+                therapistName: formData.get('therapistName'),
+                therapistEmail: formData.get('therapistEmail'),
+                enrollmentDate: formData.get('enrollmentDate'),
+                notes: formData.get('patientNotes'),
+                status: 'active'
+            };
 
-            if (!value && fieldName !== 'notes') {
-                isValid = false;
-                message = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-                type = 'error';
-            } else if (fieldName === 'age') {
-                const age = parseInt(value);
-                if (isNaN(age) || age < 0 || age > 120) {
-                    isValid = false;
-                    message = 'Please enter a valid age (0-120)';
-                    type = 'error';
-                } else if (age < 18) {
-                    message = 'Minor patient - consider guardian consent';
-                    type = 'warning';
-                } else {
-                    message = 'Valid age';
-                }
-            } else if (fieldName === 'mental' && (value === 'critical' || value === 'poor')) {
-                message = '⚠️ Consider immediate professional assessment';
-                type = 'warning';
-                checkCrisisIndicators();
-            } else if (fieldName === 'notes' && value) {
-                const crisisKeywords = ['suicide', 'kill myself', 'hurt myself', 'want to die', 'end it all'];
-                const lowerValue = value.toLowerCase();
-                for (const keyword of crisisKeywords) {
-                    if (lowerValue.includes(keyword)) {
-                        message = '⚠️ Crisis language detected - immediate assessment needed';
-                        type = 'warning';
-                        checkCrisisIndicators();
-                        break;
-                    }
-                }
-                if (!message) {
-                    message = value.length > 0 ? 'Additional notes recorded' : '';
-                }
-            } else if (isValid) {
-                message = 'Valid';
-            }
+            const accessCode = formData.get('accessCode');
 
-            if (message) {
-                messageEl.textContent = message;
-                messageEl.className = `validation-message ${type} show`;
-            } else {
-                messageEl.style.display = 'none';
-            }
+            console.log('Patient data:', patientData);
 
-            return isValid;
-        }
-
-        function checkCrisisIndicators() {
-            const mental = document.getElementById('mental').value;
-            const notes = document.getElementById('notes').value.toLowerCase();
-            const country = document.getElementById('country').value;
-
-            const isCrisis = mental === 'critical' || mental === 'poor' ||
-                           ['suicide', 'kill myself', 'hurt myself', 'want to die'].some(keyword =>
-                               notes.includes(keyword));
-
-            const alertEl = document.getElementById('crisisAlert');
-
-            if (isCrisis) {
-                crisisDetected = true;
-                alertEl.classList.add('show');
-
-                if (country) {
-                    loadEmergencyContacts(country);
-                }
-            } else {
-                crisisDetected = false;
-                alertEl.classList.remove('show');
-            }
-        }
-
-        async function loadEmergencyContacts(countryCode) {
             try {
-                const response = await fetch(`${API_BASE_URL}/emergency-resources/${countryCode}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    const contactsEl = document.getElementById('emergencyContacts');
-                    contactsEl.innerHTML = `
-                        <strong>Emergency contacts for ${data.country}:</strong><br>
-                        ${data.crisis_resources.join(' • ')}
-                    `;
-                }
-            } catch (error) {
-                console.error('Error loading emergency contacts:', error);
-            }
-        }
-
-        async function submitAssessment(formData) {
-            try {
-                showLoading(true);
-
-                console.log('Submitting to:', `${API_BASE_URL}/assess`);
-                console.log('Current page:', window.location.href);
-                console.log('Form data:', formData);
-
-                const response = await fetch(`${API_BASE_URL}/assess`, {
+                const response = await fetch('/api/therapy/save-patient', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                console.log('Response received:', response.status, response.statusText);
-
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                console.log('Assessment result:', result);
-
-                if (result.success) {
-                    currentAssessment = result;
-                    displayResults(result);
-                    showTab('results');
-                } else {
-                    alert('Assessment failed: ' + (result.message || result.error));
-                }
-
-            } catch (error) {
-                console.error('Detailed error:', error);
-
-                let errorMessage = 'Network error occurred:\n\n';
-                errorMessage += `Error: ${error.message}\n`;
-                errorMessage += `Current page: ${window.location.href}\n`;
-                errorMessage += `Trying to reach: ${API_BASE_URL}/assess\n\n`;
-
-                if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        errorMessage += 'Local Development Solutions:\n';
-                        errorMessage += '1. Make sure Flask server is running (check PyCharm console)\n';
-                        errorMessage += '2. Try accessing http://localhost:5000/api/countries directly\n';
-                        errorMessage += '3. Check if firewall is blocking port 5000\n';
-                        errorMessage += '4. Try restarting the Flask server\n';
-                        errorMessage += '5. Ensure you are accessing via http://localhost:5000';
-                    } else {
-                        errorMessage += 'Production Solutions:\n';
-                        errorMessage += '1. Check if the backend server is running on Render\n';
-                        errorMessage += '2. Verify the API endpoints are accessible\n';
-                        errorMessage += '3. Check browser network tab for more details\n';
-                        errorMessage += '4. Try refreshing the page';
-                    }
-                } else if (error.message.includes('500')) {
-                    errorMessage += 'Server error - check server logs for Python errors';
-                } else if (error.message.includes('404')) {
-                    errorMessage += 'API endpoint not found - check backend is properly deployed';
-                }
-
-                alert(errorMessage);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function displayResults(assessment) {
-            const container = document.getElementById('resultsContainer');
-
-            const html = `
-                <div class="assessment-card">
-                    <h3>👤 Patient Profile</h3>
-                    <div class="country-context">
-                        <strong>${assessment.patient_profile.name}</strong> (${assessment.patient_profile.age} years old)<br>
-                        📍 ${assessment.patient_profile.city}, ${assessment.patient_profile.country}<br>
-                        💼 ${assessment.patient_profile.employment_status}<br>
-                        🧠 Mental State: ${assessment.patient_profile.mental_state}
-                    </div>
-                </div>
-
-                <div class="risk-indicator risk-${assessment.risk_indicators.level}">
-                    <strong>Risk Level: ${assessment.risk_indicators.level.toUpperCase()}</strong>
-                    ${assessment.risk_indicators.requires_immediate_attention ? '<br>⚠️ Requires immediate attention' : ''}
-                </div>
-
-                <div class="assessment-card">
-                    <h3>🌍 Country Health Context</h3>
-                    <p><strong>${assessment.country_context.name}</strong></p>
-                    <ul>
-                        <li>Mental health prevalence: ${assessment.country_context.mental_health_prevalence}%</li>
-                        <li>Healthcare system: ${assessment.country_context.healthcare_system}</li>
-                        <li>Common issues: ${assessment.country_context.common_health_issues.join(', ')}</li>
-                        <li>Emergency contacts: ${assessment.country_context.crisis_resources.join(', ')}</li>
-                    </ul>
-                </div>
-
-                <div class="assessment-card">
-                    <h3>🏥 Health Assessment</h3>
-                    ${formatAssessmentSection(assessment.assessments.country_health_needs)}
-                </div>
-
-                <div class="assessment-card">
-                    <h3>🛡️ Safety Assessment</h3>
-                    ${formatAssessmentSection(assessment.assessments.country_safety_needs)}
-                </div>
-
-                <div class="assessment-card">
-                    <h3>📊 Evidence-Based Recommendations</h3>
-                    ${formatAssessmentSection(assessment.assessments.country_evidence_recommendations)}
-                </div>
-
-                <div class="assessment-card">
-                    <h3>📋 General Recommendations</h3>
-                    ${formatAssessmentSection(assessment.assessments.general_recommendations)}
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <button onclick="downloadAssessment()" class="save-btn">
-                        💾 Download Assessment
-                    </button>
-                    <button onclick="saveToServer()" class="save-btn">
-                        🔒 Save to Server
-                    </button>
-                </div>
-
-                <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px; font-size: 12px; color: #666;">
-                    <strong>Assessment Details:</strong><br>
-                    Generated: ${new Date(assessment.timestamp).toLocaleString()}<br>
-                    Age Category: ${assessment.age_category}<br>
-                    City Category: ${assessment.city_category}
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        function formatAssessmentSection(section) {
-            let html = '';
-
-            for (const [category, items] of Object.entries(section)) {
-                if (items && items.length > 0) {
-                    html += `
-                        <h4>${category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
-                        <ul class="recommendation-list">
-                            ${items.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                    `;
-                }
-            }
-
-            return html || '<p>No specific recommendations for this category.</p>';
-        }
-
-        function downloadAssessment() {
-            if (!currentAssessment) return;
-
-            const dataStr = JSON.stringify(currentAssessment, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `assessment_${currentAssessment.patient_profile.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-
-            URL.revokeObjectURL(url);
-        }
-
-        async function saveToServer() {
-            if (!currentAssessment) return;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/save-assessment`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({
-                        patient_name: currentAssessment.patient_profile.name,
-                        country: currentAssessment.patient_profile.country,
-                        assessment_data: currentAssessment
+                        patientId: patientData.patientId,
+                        patientData: patientData,
+                        accessCode: accessCode
                     })
                 });
 
                 const result = await response.json();
+                console.log('Enrollment result:', result);
 
                 if (result.success) {
-                    alert(`Assessment saved successfully as: ${result.filename}`);
-                } else {
-                    alert('Save failed: ' + result.error);
-                }
+                    showSuccess('Patient enrolled successfully!');
+                    event.target.reset();
 
+                    // Set today's date again
+                    document.getElementById('enrollmentDate').value = new Date().toISOString().split('T')[0];
+
+                    // Reload patients
+                    loadPatients();
+                } else {
+                    showError(result.error || 'Failed to enroll patient');
+                }
             } catch (error) {
-                console.error('Error saving assessment:', error);
-                alert('Network error: Unable to save to server');
+                console.error('Error enrolling patient:', error);
+                showError('Error enrolling patient: ' + error.message);
             }
         }
 
-        function showLoading(show) {
-            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
-            document.getElementById('patientForm').style.display = show ? 'none' : 'block';
-        }
+        // Submit daily check-in
+        async function submitDailyCheckIn(event) {
+            event.preventDefault();
+            console.log('Submitting daily check-in...');
 
-        // Test connection on page load
-        async function testConnection() {
+            const patientId = document.getElementById('checkinPatientId').value;
+            const date = document.getElementById('checkinDate').value;
+            const time = document.getElementById('checkinTime').value;
+
+            const emotionalValue = document.getElementById('emotionalValue').value;
+            const medicationValue = document.getElementById('medicationValue').value;
+            const activityValue = document.getElementById('activityValue').value;
+
+            if (!emotionalValue || !medicationValue || !activityValue) {
+                showError('Please rate all three areas (emotional state, medication, and physical activity)');
+                return;
+            }
+
+            const checkinData = {
+                date: date,
+                time: time,
+                timestamp: `${date} ${time}`,
+                emotional: {
+                    value: parseInt(emotionalValue),
+                    notes: document.getElementById('emotionalNotes').value
+                },
+                medication: {
+                    value: parseInt(medicationValue),
+                    notes: document.getElementById('medicationNotes').value
+                },
+                activity: {
+                    value: parseInt(activityValue),
+                    notes: document.getElementById('activityNotes').value
+                }
+            };
+
+            console.log('Check-in data:', checkinData);
+
             try {
-                console.log('Testing connection to:', `${API_BASE_URL}/countries`);
-                const response = await fetch(`${API_BASE_URL}/countries`);
-                const data = await response.json();
-
-                if (data.success) {
-                    console.log('✅ Backend connection successful');
-                    console.log(`📊 Loaded ${data.countries.length} countries`);
-                } else {
-                    throw new Error('Server responded with error');
-                }
-            } catch (error) {
-                console.error('❌ Backend connection failed:', error);
-                console.log('Current URL:', window.location.href);
-                console.log('API URL:', API_BASE_URL);
-
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    console.log('Try visiting http://localhost:5000/api/countries directly to test server');
-                } else {
-                    console.log(`Try visiting ${API_BASE_URL}/countries directly to test server`);
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded. Testing backend connection...');
-
-            const form = document.getElementById('patientForm');
-            const fields = ['name', 'age', 'country', 'city', 'gender', 'employment', 'financial', 'exercise', 'mental', 'notes'];
-
-            // Add validation to fields
-            fields.forEach(fieldName => {
-                const field = document.getElementById(fieldName);
-                if (field) {
-                    const eventType = field.tagName === 'SELECT' ? 'change' : 'input';
-                    field.addEventListener(eventType, function(e) {
-                        validateField(fieldName, e.target.value);
-                    });
-                }
-            });
-
-            // Form submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                let isValid = true;
-                const formData = {};
-
-                fields.forEach(fieldName => {
-                    const field = document.getElementById(fieldName);
-                    if (field) {
-                        const value = field.value.trim();
-                        formData[fieldName] = value;
-
-                        if (!validateField(fieldName, value) && fieldName !== 'notes') {
-                            isValid = false;
-                        }
-                    }
+                const response = await fetch('/api/therapy/save-checkin', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        patientId: patientId,
+                        checkinData: checkinData
+                    })
                 });
 
-                if (isValid) {
-                    submitAssessment(formData);
+                const result = await response.json();
+                console.log('Check-in result:', result);
+
+                if (result.success) {
+                    showSuccess('Daily check-in submitted successfully!');
+
+                    // Reset form but keep patient selected
+                    const selectedPatient = document.getElementById('checkinPatientId').value;
+                    document.getElementById('checkinForm').reset();
+                    document.getElementById('checkinPatientId').value = selectedPatient;
+
+                    // Reset date and time to current
+                    document.getElementById('checkinDate').value = new Date().toISOString().split('T')[0];
+                    const now = new Date();
+                    document.getElementById('checkinTime').value =
+                        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+                    // Clear rating selections
+                    document.querySelectorAll('.rating-button').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
                 } else {
-                    alert('Please correct the validation errors before submitting.');
+                    showError(result.error || 'Failed to submit check-in');
+                }
+            } catch (error) {
+                console.error('Error submitting check-in:', error);
+                showError('Error submitting check-in: ' + error.message);
+            }
+        }
+
+        // Load patients
+        async function loadPatients() {
+            console.log('Loading patients...');
+            try {
+                const response = await fetch('/api/therapy/get-all-patients', {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+
+                console.log('Loaded patients:', result);
+
+                if (result.success) {
+                    enrolledPatients = result.patients;
+                    updatePatientSelects();
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+        }
+
+        // Update patient select dropdowns
+        function updatePatientSelects() {
+            const selects = [
+                'checkinPatientId',
+                'progressPatientId',
+                'reportPatientId'
+            ];
+
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    // Keep current selection
+                    const currentValue = select.value;
+
+                    // Clear and rebuild options
+                    select.innerHTML = '<option value="">Select Patient</option>';
+
+                    enrolledPatients.forEach(patient => {
+                        const option = document.createElement('option');
+                        option.value = patient.patientId;
+                        option.textContent = `${patient.patientId} - ${patient.name}`;
+                        select.appendChild(option);
+                    });
+
+                    // Restore selection if it still exists
+                    if (currentValue && enrolledPatients.some(p => p.patientId === currentValue)) {
+                        select.value = currentValue;
+                    }
                 }
             });
+        }
 
-            // Crisis detection
-            document.getElementById('mental').addEventListener('change', checkCrisisIndicators);
-            document.getElementById('notes').addEventListener('input', checkCrisisIndicators);
-            document.getElementById('country').addEventListener('change', function(e) {
-                if (crisisDetected && e.target.value) {
-                    loadEmergencyContacts(e.target.value);
+        // Load week progress
+        async function loadWeekProgress() {
+            const patientId = document.getElementById('progressPatientId').value;
+            const week = document.getElementById('progressWeek').value;
+
+            if (!patientId || !week) {
+                showError('Please select both patient and week');
+                return;
+            }
+
+            console.log('Loading week progress:', patientId, week);
+
+            try {
+                const response = await fetch(`/api/therapy/get-week-data/${patientId}/${week}`, {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+
+                console.log('Week data received:', result);
+                console.log('Week data details:', result.weekData);
+
+                if (result.success) {
+                    displayWeekProgress(result.weekData, week);
+                    showSuccess('Week data loaded successfully');
+                } else {
+                    showError(result.error || 'Failed to load week data');
                 }
+            } catch (error) {
+                console.error('Error loading week data:', error);
+                showError('Error loading week data: ' + error.message);
+            }
+        }
+
+        // Display week progress
+        function displayWeekProgress(weekData, weekString) {
+            const weekDisplay = document.getElementById('weekProgressDisplay');
+            const weekGrid = document.getElementById('weekGrid');
+            const weekDetails = document.getElementById('weekDetails');
+
+            // Clear previous data
+            weekGrid.innerHTML = '';
+            weekDetails.innerHTML = '';
+
+            // Parse week to get dates
+            const [year, weekNum] = weekString.split('-W');
+            const weekDates = getWeekDates(parseInt(year), parseInt(weekNum));
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+            console.log('Week dates calculated:', weekDates.map(d => d.toISOString().split('T')[0]));
+            console.log('Week data keys:', Object.keys(weekData));
+
+            // Create day cards
+            weekDates.forEach((date, index) => {
+                const dateStr = date.toISOString().split('T')[0];
+                const dayCard = document.createElement('div');
+                dayCard.className = 'day-card';
+
+                console.log(`Checking ${dateStr} in weekData:`, weekData.hasOwnProperty(dateStr));
+
+                if (weekData[dateStr]) {
+                    dayCard.classList.add('completed');
+                    const data = weekData[dateStr];
+                    dayCard.innerHTML = `
+                        <h4>${days[index]}</h4>
+                        <p>${date.toLocaleDateString()}</p>
+                        <p style="font-size: 0.9rem; color: #28a745;">✓ Completed</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">
+                            E: ${data.emotional.value}/5<br>
+                            M: ${data.medication.value}/5<br>
+                            A: ${data.activity.value}/5
+                        </p>
+                    `;
+                } else {
+                    if (date <= new Date()) {
+                        dayCard.classList.add('missed');
+                        dayCard.innerHTML = `
+                            <h4>${days[index]}</h4>
+                            <p>${date.toLocaleDateString()}</p>
+                            <p style="font-size: 0.9rem; color: #dc3545;">✗ No Response</p>
+                        `;
+                    } else {
+                        dayCard.innerHTML = `
+                            <h4>${days[index]}</h4>
+                            <p>${date.toLocaleDateString()}</p>
+                            <p style="font-size: 0.9rem; color: #999;">Pending</p>
+                        `;
+                    }
+                }
+
+                weekGrid.appendChild(dayCard);
             });
 
-            // Test connection after page loads
-            setTimeout(testConnection, 1000);
-        });
+            // Create detailed view
+            if (Object.keys(weekData).length > 0) {
+                let detailsHTML = '<div class="form-section">';
+
+                Object.keys(weekData).sort().forEach(dateStr => {
+                    const data = weekData[dateStr];
+                    const date = new Date(dateStr);
+
+                    detailsHTML += `
+                        <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #e0e0e0;">
+                            <h4>${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
+                            <p style="color: #666; margin-bottom: 1rem;">Check-in time: ${data.time}</p>
+
+                            <div class="two-column">
+                                <div>
+                                    <strong>Emotional State:</strong> ${data.emotional.value}/5
+                                    ${data.emotional.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.emotional.notes}</p>` : ''}
+                                </div>
+                                <div>
+                                    <strong>Medication Adherence:</strong> ${data.medication.value}/5
+                                    ${data.medication.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.medication.notes}</p>` : ''}
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 1rem;">
+                                <strong>Physical Activity:</strong> ${data.activity.value}/5
+                                ${data.activity.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.activity.notes}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                detailsHTML += '</div>';
+                weekDetails.innerHTML = detailsHTML;
+            } else {
+                weekDetails.innerHTML = '<p style="text-align: center; color: #666;">No check-ins recorded for this week.</p>';
+            }
+
+            weekDisplay.style.display = 'block';
+        }
+
+        // Load patient management
+        async function loadPatientManagement() {
+            const container = document.getElementById('patientListContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading patients...</p></div>';
+
+            console.log('Loading patient management...');
+
+            try {
+                const response = await fetch('/api/therapy/get-all-patients', {
+                    headers: getAuthHeaders()
+                });
+                const result = await response.json();
+
+                console.log('Patient management data:', result);
+
+                if (result.success) {
+                    displayPatientList(result.patients);
+                } else {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">No patients enrolled yet.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading patient management:', error);
+                container.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading patients.</p>';
+            }
+        }
+
+        // Display patient list
+        function displayPatientList(patients) {
+            const container = document.getElementById('patientListContainer');
+
+            if (patients.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No patients enrolled yet.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            patients.forEach(patient => {
+                const card = document.createElement('div');
+                card.className = 'patient-card';
+
+                card.innerHTML = `
+                    <div class="patient-info">
+                        <h3>${patient.name}</h3>
+                        <p>ID: ${patient.patientId} | Age: ${patient.age} | Gender: ${patient.gender || 'Not specified'}</p>
+                        <p>Therapist: ${patient.therapistName} (${patient.therapistEmail})</p>
+                        <p>Enrolled: ${new Date(patient.enrollmentDate).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                        <span class="status-badge ${patient.status === 'active' ? 'active' : 'inactive'}">
+                            ${patient.status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Generate Excel report
+        async function generateExcelReport() {
+            const patientId = document.getElementById('reportPatientId').value;
+            const week = document.getElementById('reportWeek').value;
+
+            if (!patientId || !week) {
+                showError('Please select both patient and week');
+                return;
+            }
+
+            console.log('Generating Excel report:', patientId, week);
+
+            try {
+                const response = await fetch(`/api/therapy/generate-excel-report/${patientId}/${week}`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    // Get filename from response headers
+                    const contentDisposition = response.headers.get('content-disposition');
+                    const filenameMatch = contentDisposition && contentDisposition.match(/filename="(.+)"/);
+                    const filename = filenameMatch ? filenameMatch[1] : `therapy_report_${patientId}_${week}.xlsx`;
+
+                    console.log('Downloading Excel report:', filename);
+
+                    // Download file
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    showSuccess('Excel report generated and downloaded successfully!');
+
+                    // Show status
+                    const statusDiv = document.getElementById('reportStatus');
+                    const statusContent = document.getElementById('reportStatusContent');
+                    statusDiv.style.display = 'block';
+                    statusContent.innerHTML = `
+                        <p class="success" style="color: #155724;">
+                            ✓ Report generated successfully!<br>
+                            Filename: ${filename}
+                        </p>
+                    `;
+                } else {
+                    const error = await response.json();
+                    showError(error.error || 'Failed to generate report');
+                }
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showError('Error generating report: ' + error.message);
+            }
+        }
+
+        // Prepare email report
+        async function prepareEmailReport() {
+            const patientId = document.getElementById('reportPatientId').value;
+            const week = document.getElementById('reportWeek').value;
+
+            if (!patientId || !week) {
+                showError('Please select both patient and week');
+                return;
+            }
+
+            console.log('Preparing email report:', patientId, week);
+
+            try {
+                const response = await fetch('/api/therapy/email-report', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        patientId: patientId,
+                        week: week
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Email report result:', result);
+
+                if (result.success) {
+                    // Show email preview
+                    const statusDiv = document.getElementById('reportStatus');
+                    const statusContent = document.getElementById('reportStatusContent');
+                    statusDiv.style.display = 'block';
+
+                    // Check if email was actually sent or just prepared
+                    const emailWasSent = result.note && result.note.toLowerCase().includes('email sent with excel attachment');
+
+                    let statusHTML = `
+                        <div class="form-section">
+                            <h4>${emailWasSent ? 'Email Report Sent Successfully' : 'Email Report Preview'}</h4>
+                            <p><strong>To:</strong> ${result.recipient}</p>
+                            <p><strong>Subject:</strong> ${result.subject}</p>
+                            ${result.attachment ? `<p><strong>Attachment:</strong> ${result.attachment}</p>` : ''}
+                            <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                                <pre style="white-space: pre-wrap; font-family: inherit;">${result.content}</pre>
+                            </div>
+                    `;
+
+                    if (result.config_example) {
+                        statusHTML += `
+                            <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px;">
+                                <h5>📧 Email Setup Required</h5>
+                                <p>To enable automatic email sending, create a file <code>therapy_data/email_config.json</code> with:</p>
+                                <pre style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; overflow-x: auto;">${JSON.stringify(result.config_example, null, 2)}</pre>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                                    <strong>For Gmail:</strong> Use an App Password from
+                                    <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a>
+                                </p>
+                            </div>
+                        `;
+                    }
+
+                    statusHTML += `
+                            <p style="margin-top: 1rem; color: #666;">
+                                <em>${result.note}</em>
+                            </p>
+                        </div>
+                    `;
+
+                    statusContent.innerHTML = statusHTML;
+
+                    if (emailWasSent) {
+                        showSuccess('Email sent successfully with Excel attachment!');
+                    } else {
+                        showSuccess('Email report prepared! To send automatically, configure email settings.');
+                    }
+                } else {
+                    showError(result.error || 'Failed to prepare email report');
+                }
+            } catch (error) {
+                console.error('Error preparing email report:', error);
+                showError('Error preparing email report: ' + error.message);
+            }
+        }
+
+        // Refresh week progress
+        function refreshWeekProgress() {
+            const patientId = document.getElementById('progressPatientId').value;
+            const week = document.getElementById('progressWeek').value;
+
+            if (!patientId || !week) {
+                showError('Please select patient and week first');
+                return;
+            }
+
+            console.log('Refreshing week progress...');
+            loadWeekProgress();
+        }
+
+        // Utility functions
+        function showSuccess(message) {
+            console.log('Success:', message);
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            console.error('Error:', message);
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function getISOWeek(date) {
+            const year = date.getFullYear();
+            const weekNum = getWeekNumber(date);
+            return `${year}-W${String(weekNum).padStart(2, '0')}`;
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function getWeekDates(year, weekNum) {
+            // Simple approach: Get the first Thursday of the year
+            const jan1 = new Date(year, 0, 1);
+            const jan1Day = jan1.getDay() || 7; // Make Sunday = 7
+
+            // Find the first Thursday
+            let firstThursday = new Date(year, 0, 1);
+            if (jan1Day <= 4) {
+                firstThursday.setDate(1 + (4 - jan1Day));
+            } else {
+                firstThursday.setDate(1 + (11 - jan1Day));
+            }
+
+            // Get the Monday of that week
+            const firstMonday = new Date(firstThursday);
+            firstMonday.setDate(firstThursday.getDate() - 3);
+
+            // Calculate the Monday of the requested week
+            const weekStart = new Date(firstMonday);
+            weekStart.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
+
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + i);
+                dates.push(date);
+            }
+
+            return dates;
+        }
     </script>
 </body>
 </html>
