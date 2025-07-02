@@ -1,0 +1,58 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environment
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+therapy_data/
+*.log
+*.csv
+*.xlsx
+*.json
+!package.json
+!requirements.txt
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# Temporary files
+*.tmp
+*.temp
+.~*
