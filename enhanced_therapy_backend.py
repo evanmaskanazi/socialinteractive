@@ -141,7 +141,7 @@ def index():
         with open('client.html', 'r', encoding='utf-8') as f:
             return f.read()
     else:
-        return f"""
+        return """
         <html>
         <body>
             <h1>Therapeutic Companion Server Running</h1>
@@ -156,7 +156,7 @@ def index():
                 <li>✅ System email sends all reports</li>
                 <li>✅ Database persistence (PostgreSQL/SQLite)</li>
             </ul>
-            <p><strong>Database:</strong> {'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'}</p>
+            <p><strong>Database:</strong> PostgreSQL</p>
         </body>
         </html>
         """
