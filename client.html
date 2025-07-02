@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Social Worker Assessment - Full Stack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .validation-message {
+            margin-top: 8px;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .validation-message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .validation-message.success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .validation-message.warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border-left: 4px solid #ff9800;
+        }
+
+        .validation-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .assessment-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .assessment-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .risk-indicator {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .risk-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .risk-high {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ff9800;
+        }
+
+        .risk-critical {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .crisis-alert {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .crisis-alert.show {
+            display: block;
+        }
+
+        .crisis-alert h3 {
+            color: #c62828;
+            margin-bottom: 15px;
+        }
+
+        .emergency-contacts {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .recommendation-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .country-context {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .content-tabs {
+                flex-direction: column;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Global Social Worker Assessment</h1>
+            <p>Full-stack application with Python backend integration</p>
+        </div>
+
+        <div class="content-tabs">
+            <button class="tab active" onclick="showTab('assessment')">Patient Assessment</button>
+            <button class="tab" onclick="showTab('results')">Results & Analysis</button>
+        </div>
+
+        <div id="assessment" class="tab-content active">
+            <form id="patientForm">
+                <div class="form-group">
+                    <label for="name">Patient Name or Initials</label>
+                    <input type="text" id="name" name="name" placeholder="e.g., John Doe or J.D." maxlength="100">
+                    <div class="validation-message" id="nameMessage"></div>
+                    <div class="help-text">Enter full name or initials for privacy protection</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" min="0" max="120" placeholder="e.g., 35">
+                    <div class="validation-message" id="ageMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country">
+                        <option value="">Select a country...</option>
+                        <option value="united_states">🇺🇸 United States</option>
+                        <option value="canada">🇨🇦 Canada</option>
+                        <option value="united_kingdom">🇬🇧 United Kingdom</option>
+                        <option value="australia">🇦🇺 Australia</option>
+                        <option value="germany">🇩🇪 Germany</option>
+                        <option value="japan">🇯🇵 Japan</option>
+                        <option value="india">🇮🇳 India</option>
+                        <option value="brazil">🇧🇷 Brazil</option>
+                        <option value="south_africa">🇿🇦 South Africa</option>
+                        <option value="sweden">🇸🇪 Sweden</option>
+                        <option value="israel">🇮🇱 Israel</option>
+                        <option value="france">🇫🇷 France</option>
+                    </select>
+                    <div class="validation-message" id="countryMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City/Location</label>
+                    <input type="text" id="city" name="city" placeholder="e.g., New York, London, Tokyo" maxlength="100">
+                    <div class="validation-message" id="cityMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" name="gender">
+                        <option value="">Select gender...</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="non_binary">Non-binary</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                    <div class="validation-message" id="genderMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="employment">Employment Status</label>
+                    <select id="employment" name="employment">
+                        <option value="">Select employment status...</option>
+                        <option value="full_time">Full-time employed</option>
+                        <option value="part_time">Part-time employed</option>
+                        <option value="unemployed_seeking">Unemployed - actively seeking</option>
+                        <option value="unemployed_not_seeking">Unemployed - not seeking</option>
+                        <option value="student">Student</option>
+                        <option value="retired">Retired</option>
+                        <option value="unable_to_work">Unable to work</option>
+                    </select>
+                    <div class="validation-message" id="employmentMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="financial">Financial Status</label>
+                    <select id="financial" name="financial">
+                        <option value="">Select financial status...</option>
+                        <option value="low_income">Low income - difficulty meeting basic needs</option>
+                        <option value="moderate_income">Moderate income - meets basic needs with constraints</option>
+                        <option value="stable_income">Stable income - comfortable with discretionary spending</option>
+                    </select>
+                    <div class="validation-message" id="financialMessage"></div>
+                    <div class="help-text" id="financialHelp">Relative to local country standards</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="exercise">Exercise Level</label>
+                    <select id="exercise" name="exercise">
+                        <option value="">Select exercise level...</option>
+                        <option value="very_active">Very active (5+ times per week)</option>
+                        <option value="moderately_active">Moderately active (3-4 times per week)</option>
+                        <option value="lightly_active">Lightly active (1-2 times per week)</option>
+                        <option value="sedentary">Sedentary (little to no exercise)</option>
+                    </select>
+                    <div class="validation-message" id="exerciseMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mental">Mental State Assessment</label>
+                    <select id="mental" name="mental">
+                        <option value="">Select mental state...</option>
+                        <option value="excellent">Excellent - feeling very positive and energetic</option>
+                        <option value="good">Good - generally positive with minor concerns</option>
+                        <option value="fair">Fair - some challenges but managing</option>
+                        <option value="poor">Poor - struggling with daily activities</option>
+                        <option value="critical">Critical - severe distress or crisis</option>
+                    </select>
+                    <div class="validation-message" id="mentalMessage"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" placeholder="Any additional concerns, symptoms, or relevant information..." maxlength="1000"></textarea>
+                    <div class="validation-message" id="notesMessage"></div>
+                    <div class="help-text">Optional: Provide any additional relevant information (max 1000 characters)</div>
+                </div>
+
+                <div class="crisis-alert" id="crisisAlert">
+                    <h3>⚠️ Crisis Indicators Detected</h3>
+                    <p>Based on the information provided, immediate professional assessment may be needed.</p>
+                    <div class="emergency-contacts" id="emergencyContacts"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Generate Assessment
+                </button>
+            </form>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Processing assessment with AI analysis...</p>
+            </div>
+        </div>
+
+        <div id="results" class="tab-content">
+            <div id="resultsContainer">
+                <p style="text-align: center; color: #666; font-style: italic;">
+                    Complete the assessment form to see detailed analysis and recommendations.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FIXED: Smart API URL detection - works for both local development and production
+        let API_BASE_URL;
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Local development
+            API_BASE_URL = 'http://localhost:5000/api';
+            console.log('Running locally - using localhost API');
+        } else {
+            // Production - use same domain as the website
+            API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
+            console.log('Running in production - using current domain API');
+        }
+
+        console.log('API_BASE_URL set to:', API_BASE_URL);
+
+        let currentAssessment = null;
+        let crisisDetected = false;
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+
+            // Find and activate the correct tab button
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.toLowerCase().includes(tabName.toLowerCase())) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        function validateField(fieldName, value) {
+            const messageEl = document.getElementById(`${fieldName}Message`);
+
+            let isValid = true;
+            let message = '';
+            let type = 'success';
+
+            if (!value && fieldName !== 'notes') {
+                isValid = false;
+                message = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+                type = 'error';
+            } else if (fieldName === 'age') {
+                const age = parseInt(value);
+                if (isNaN(age) || age < 0 || age > 120) {
+                    isValid = false;
+                    message = 'Please enter a valid age (0-120)';
+                    type = 'error';
+                } else if (age < 18) {
+                    message = 'Minor patient - consider guardian consent';
+                    type = 'warning';
+                } else {
+                    message = 'Valid age';
+                }
+            } else if (fieldName === 'mental' && (value === 'critical' || value === 'poor')) {
+                message = '⚠️ Consider immediate professional assessment';
+                type = 'warning';
+                checkCrisisIndicators();
+            } else if (fieldName === 'notes' && value) {
+                const crisisKeywords = ['suicide', 'kill myself', 'hurt myself', 'want to die', 'end it all'];
+                const lowerValue = value.toLowerCase();
+                for (const keyword of crisisKeywords) {
+                    if (lowerValue.includes(keyword)) {
+                        message = '⚠️ Crisis language detected - immediate assessment needed';
+                        type = 'warning';
+                        checkCrisisIndicators();
+                        break;
+                    }
+                }
+                if (!message) {
+                    message = value.length > 0 ? 'Additional notes recorded' : '';
+                }
+            } else if (isValid) {
+                message = 'Valid';
+            }
+
+            if (message) {
+                messageEl.textContent = message;
+                messageEl.className = `validation-message ${type} show`;
+            } else {
+                messageEl.style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        function checkCrisisIndicators() {
+            const mental = document.getElementById('mental').value;
+            const notes = document.getElementById('notes').value.toLowerCase();
+            const country = document.getElementById('country').value;
+
+            const isCrisis = mental === 'critical' || mental === 'poor' ||
+                           ['suicide', 'kill myself', 'hurt myself', 'want to die'].some(keyword =>
+                               notes.includes(keyword));
+
+            const alertEl = document.getElementById('crisisAlert');
+
+            if (isCrisis) {
+                crisisDetected = true;
+                alertEl.classList.add('show');
+
+                if (country) {
+                    loadEmergencyContacts(country);
+                }
+            } else {
+                crisisDetected = false;
+                alertEl.classList.remove('show');
+            }
+        }
+
+        async function loadEmergencyContacts(countryCode) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/emergency-resources/${countryCode}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const contactsEl = document.getElementById('emergencyContacts');
+                    contactsEl.innerHTML = `
+                        <strong>Emergency contacts for ${data.country}:</strong><br>
+                        ${data.crisis_resources.join(' • ')}
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading emergency contacts:', error);
+            }
+        }
+
+        async function submitAssessment(formData) {
+            try {
+                showLoading(true);
+
+                console.log('Submitting to:', `${API_BASE_URL}/assess`);
+                console.log('Current page:', window.location.href);
+                console.log('Form data:', formData);
+
+                const response = await fetch(`${API_BASE_URL}/assess`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('Response received:', response.status, response.statusText);
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('Assessment result:', result);
+
+                if (result.success) {
+                    currentAssessment = result;
+                    displayResults(result);
+                    showTab('results');
+                } else {
+                    alert('Assessment failed: ' + (result.message || result.error));
+                }
+
+            } catch (error) {
+                console.error('Detailed error:', error);
+
+                let errorMessage = 'Network error occurred:\n\n';
+                errorMessage += `Error: ${error.message}\n`;
+                errorMessage += `Current page: ${window.location.href}\n`;
+                errorMessage += `Trying to reach: ${API_BASE_URL}/assess\n\n`;
+
+                if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        errorMessage += 'Local Development Solutions:\n';
+                        errorMessage += '1. Make sure Flask server is running (check PyCharm console)\n';
+                        errorMessage += '2. Try accessing http://localhost:5000/api/countries directly\n';
+                        errorMessage += '3. Check if firewall is blocking port 5000\n';
+                        errorMessage += '4. Try restarting the Flask server\n';
+                        errorMessage += '5. Ensure you are accessing via http://localhost:5000';
+                    } else {
+                        errorMessage += 'Production Solutions:\n';
+                        errorMessage += '1. Check if the backend server is running on Render\n';
+                        errorMessage += '2. Verify the API endpoints are accessible\n';
+                        errorMessage += '3. Check browser network tab for more details\n';
+                        errorMessage += '4. Try refreshing the page';
+                    }
+                } else if (error.message.includes('500')) {
+                    errorMessage += 'Server error - check server logs for Python errors';
+                } else if (error.message.includes('404')) {
+                    errorMessage += 'API endpoint not found - check backend is properly deployed';
+                }
+
+                alert(errorMessage);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(assessment) {
+            const container = document.getElementById('resultsContainer');
+
+            const html = `
+                <div class="assessment-card">
+                    <h3>👤 Patient Profile</h3>
+                    <div class="country-context">
+                        <strong>${assessment.patient_profile.name}</strong> (${assessment.patient_profile.age} years old)<br>
+                        📍 ${assessment.patient_profile.city}, ${assessment.patient_profile.country}<br>
+                        💼 ${assessment.patient_profile.employment_status}<br>
+                        🧠 Mental State: ${assessment.patient_profile.mental_state}
+                    </div>
+                </div>
+
+                <div class="risk-indicator risk-${assessment.risk_indicators.level}">
+                    <strong>Risk Level: ${assessment.risk_indicators.level.toUpperCase()}</strong>
+                    ${assessment.risk_indicators.requires_immediate_attention ? '<br>⚠️ Requires immediate attention' : ''}
+                </div>
+
+                <div class="assessment-card">
+                    <h3>🌍 Country Health Context</h3>
+                    <p><strong>${assessment.country_context.name}</strong></p>
+                    <ul>
+                        <li>Mental health prevalence: ${assessment.country_context.mental_health_prevalence}%</li>
+                        <li>Healthcare system: ${assessment.country_context.healthcare_system}</li>
+                        <li>Common issues: ${assessment.country_context.common_health_issues.join(', ')}</li>
+                        <li>Emergency contacts: ${assessment.country_context.crisis_resources.join(', ')}</li>
+                    </ul>
+                </div>
+
+                <div class="assessment-card">
+                    <h3>🏥 Health Assessment</h3>
+                    ${formatAssessmentSection(assessment.assessments.country_health_needs)}
+                </div>
+
+                <div class="assessment-card">
+                    <h3>🛡️ Safety Assessment</h3>
+                    ${formatAssessmentSection(assessment.assessments.country_safety_needs)}
+                </div>
+
+                <div class="assessment-card">
+                    <h3>📊 Evidence-Based Recommendations</h3>
+                    ${formatAssessmentSection(assessment.assessments.country_evidence_recommendations)}
+                </div>
+
+                <div class="assessment-card">
+                    <h3>📋 General Recommendations</h3>
+                    ${formatAssessmentSection(assessment.assessments.general_recommendations)}
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button onclick="downloadAssessment()" class="save-btn">
+                        💾 Download Assessment
+                    </button>
+                    <button onclick="saveToServer()" class="save-btn">
+                        🔒 Save to Server
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px; font-size: 12px; color: #666;">
+                    <strong>Assessment Details:</strong><br>
+                    Generated: ${new Date(assessment.timestamp).toLocaleString()}<br>
+                    Age Category: ${assessment.age_category}<br>
+                    City Category: ${assessment.city_category}
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function formatAssessmentSection(section) {
+            let html = '';
+
+            for (const [category, items] of Object.entries(section)) {
+                if (items && items.length > 0) {
+                    html += `
+                        <h4>${category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
+                        <ul class="recommendation-list">
+                            ${items.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    `;
+                }
+            }
+
+            return html || '<p>No specific recommendations for this category.</p>';
+        }
+
+        function downloadAssessment() {
+            if (!currentAssessment) return;
+
+            const dataStr = JSON.stringify(currentAssessment, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `assessment_${currentAssessment.patient_profile.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        async function saveToServer() {
+            if (!currentAssessment) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/save-assessment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        patient_name: currentAssessment.patient_profile.name,
+                        country: currentAssessment.patient_profile.country,
+                        assessment_data: currentAssessment
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Assessment saved successfully as: ${result.filename}`);
+                } else {
+                    alert('Save failed: ' + result.error);
+                }
+
+            } catch (error) {
+                console.error('Error saving assessment:', error);
+                alert('Network error: Unable to save to server');
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+            document.getElementById('patientForm').style.display = show ? 'none' : 'block';
+        }
+
+        // Test connection on page load
+        async function testConnection() {
+            try {
+                console.log('Testing connection to:', `${API_BASE_URL}/countries`);
+                const response = await fetch(`${API_BASE_URL}/countries`);
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('✅ Backend connection successful');
+                    console.log(`📊 Loaded ${data.countries.length} countries`);
+                } else {
+                    throw new Error('Server responded with error');
+                }
+            } catch (error) {
+                console.error('❌ Backend connection failed:', error);
+                console.log('Current URL:', window.location.href);
+                console.log('API URL:', API_BASE_URL);
+
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log('Try visiting http://localhost:5000/api/countries directly to test server');
+                } else {
+                    console.log(`Try visiting ${API_BASE_URL}/countries directly to test server`);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded. Testing backend connection...');
+
+            const form = document.getElementById('patientForm');
+            const fields = ['name', 'age', 'country', 'city', 'gender', 'employment', 'financial', 'exercise', 'mental', 'notes'];
+
+            // Add validation to fields
+            fields.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field) {
+                    const eventType = field.tagName === 'SELECT' ? 'change' : 'input';
+                    field.addEventListener(eventType, function(e) {
+                        validateField(fieldName, e.target.value);
+                    });
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+                const formData = {};
+
+                fields.forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field) {
+                        const value = field.value.trim();
+                        formData[fieldName] = value;
+
+                        if (!validateField(fieldName, value) && fieldName !== 'notes') {
+                            isValid = false;
+                        }
+                    }
+                });
+
+                if (isValid) {
+                    submitAssessment(formData);
+                } else {
+                    alert('Please correct the validation errors before submitting.');
+                }
+            });
+
+            // Crisis detection
+            document.getElementById('mental').addEventListener('change', checkCrisisIndicators);
+            document.getElementById('notes').addEventListener('input', checkCrisisIndicators);
+            document.getElementById('country').addEventListener('change', function(e) {
+                if (crisisDetected && e.target.value) {
+                    loadEmergencyContacts(e.target.value);
+                }
+            });
+
+            // Test connection after page loads
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>
