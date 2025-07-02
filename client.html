@@ -1,1445 +1,1058 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Therapeutic Social Companion</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        /* Navigation Tabs */
-        .tab-container {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #e0e0e0;
-            padding: 0 2rem;
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-        }
-
-        .tab {
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 1rem;
-            color: #666;
-            white-space: nowrap;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab:hover {
-            color: #4CAF50;
-        }
-
-        .tab.active {
-            color: #4CAF50;
-            border-bottom-color: #4CAF50;
-            font-weight: 600;
-        }
-
-        /* Content Container */
-        .content-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Form Styles */
-        .form-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #444;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="date"],
-        input[type="time"],
-        input[type="number"],
-        input[type="week"],
-        input[type="password"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* Button Styles */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            display: inline-block;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background-color: #45a049;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        /* Rating Scale */
-        .rating-scale {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .rating-button {
-            min-width: 4.5rem;
-            height: auto;
-            min-height: 4rem;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            padding: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .rating-button:hover {
-            border-color: #4CAF50;
-            transform: scale(1.05);
-        }
-
-        .rating-button.selected {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-
-        .rating-button .emoji {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .rating-button .icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .rating-button .label {
-            font-size: 0.75rem;
-            font-weight: normal;
-        }
-
-        /* Success/Error Messages */
-        .message {
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            display: none;
-            font-weight: 600;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Section Headers */
-        .section-header {
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 1rem;
-        }
-
-        .section-header h2 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        /* Two Column Layout */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .two-column {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-        }
-
-        /* Info Box */
-        .info-box {
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-
-        .info-box p {
-            margin: 0;
-            color: #0d47a1;
-        }
-
-        /* Week Grid */
-        .week-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .day-card {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .day-card.completed {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-
-        .day-card.missed {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
-
-        .day-card h4 {
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        /* Patient List */
-        .patient-list {
-            display: grid;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .patient-card {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .patient-info h3 {
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .patient-info p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Status Badge */
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .status-badge.active {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .tab-container {
-                padding: 0 1rem;
-            }
-
-            .content-container {
-                padding: 0 1rem;
-            }
-
-            .form-section {
-                padding: 1.5rem;
-            }
-
-            .week-grid {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Therapeutic Social Companion</h1>
-    </div>
-
-    <div class="tab-container">
-        <button class="tab active" onclick="showTab('enrollment')">Patient Enrollment</button>
-        <button class="tab" onclick="showTab('checkin')">Daily Check-In</button>
-        <button class="tab" onclick="showTab('progress')">Week Progress</button>
-        <button class="tab" onclick="showTab('management')">Patient Management</button>
-        <button class="tab" onclick="showTab('reports')">Generate Reports</button>
-    </div>
-
-    <div class="content-container">
-        <!-- Success/Error Messages -->
-        <div id="successMessage" class="message success"></div>
-        <div id="errorMessage" class="message error"></div>
-
-        <!-- Patient Enrollment Tab -->
-        <div id="enrollment" class="tab-content active">
-            <div class="section-header">
-                <h2>Patient Enrollment</h2>
-                <p>Register a new patient for weekly therapy tracking</p>
-            </div>
-
-            <form id="enrollmentForm" class="form-section">
-                <div class="info-box">
-                    <p>Access code required for patient enrollment</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="accessCode">Access Code*</label>
-                    <input type="password" id="accessCode" name="accessCode" required
-                           placeholder="Enter access code">
-                </div>
-
-                <div class="two-column">
-                    <div>
-                        <div class="form-group">
-                            <label for="patientId">Patient ID*</label>
-                            <input type="text" id="patientId" name="patientId" required
-                                   placeholder="e.g., P001" pattern="[A-Za-z0-9]+"
-                                   title="Letters and numbers only">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="patientName">Patient Name*</label>
-                            <input type="text" id="patientName" name="patientName" required
-                                   placeholder="Full name">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="patientAge">Age*</label>
-                            <input type="number" id="patientAge" name="patientAge"
-                                   min="1" max="120" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="patientGender">Gender</label>
-                            <select id="patientGender" name="patientGender">
-                                <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                                <option value="prefer_not_say">Prefer not to say</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="form-group">
-                            <label for="therapistName">Therapist Name*</label>
-                            <input type="text" id="therapistName" name="therapistName" required
-                                   placeholder="Dr. Smith">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="therapistEmail">Therapist Email*</label>
-                            <input type="email" id="therapistEmail" name="therapistEmail" required
-                                   placeholder="therapist@example.com">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="enrollmentDate">Enrollment Date*</label>
-                            <input type="date" id="enrollmentDate" name="enrollmentDate" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="patientNotes">Additional Notes</label>
-                            <textarea id="patientNotes" name="patientNotes"
-                                      placeholder="Any special considerations..."></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn">Enroll Patient</button>
-            </form>
-        </div>
-
-        <!-- Daily Check-In Tab -->
-        <div id="checkin" class="tab-content">
-            <div class="section-header">
-                <h2>Daily Check-In</h2>
-                <p>Record patient's daily emotional state, medication adherence, and physical activity</p>
-            </div>
-
-            <form id="checkinForm" class="form-section">
-                <div class="form-group">
-                    <label for="checkinPatientId">Patient ID*</label>
-                    <select id="checkinPatientId" name="checkinPatientId" required>
-                        <option value="">Select Patient</option>
-                    </select>
-                </div>
-
-                <div class="two-column">
-                    <div class="form-group">
-                        <label for="checkinDate">Date*</label>
-                        <input type="date" id="checkinDate" name="checkinDate" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="checkinTime">Time*</label>
-                        <input type="time" id="checkinTime" name="checkinTime" required>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <p>Please complete all three assessment areas below</p>
-                </div>
-
-                <!-- Emotional State -->
-                <div class="form-group">
-                    <label>Emotional State*</label>
-                    <p style="color: #666; margin-bottom: 0.5rem;">How are you feeling emotionally today?</p>
-                    <div class="rating-scale">
-                        <button type="button" class="rating-button" data-category="emotional" data-value="1">
-                            <span class="emoji">😢</span>
-                            <span>1</span>
-                            <span class="label">Very Poor</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="emotional" data-value="2">
-                            <span class="emoji">😟</span>
-                            <span>2</span>
-                            <span class="label">Poor</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="emotional" data-value="3">
-                            <span class="emoji">😐</span>
-                            <span>3</span>
-                            <span class="label">Fair</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="emotional" data-value="4">
-                            <span class="emoji">🙂</span>
-                            <span>4</span>
-                            <span class="label">Good</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="emotional" data-value="5">
-                            <span class="emoji">😄</span>
-                            <span>5</span>
-                            <span class="label">Excellent</span>
-                        </button>
-                    </div>
-                    <input type="hidden" id="emotionalValue" name="emotionalValue" required>
-                    <textarea id="emotionalNotes" name="emotionalNotes" placeholder="Optional notes about emotional state..."
-                              style="margin-top: 1rem;"></textarea>
-                </div>
-
-                <!-- Medication Adherence -->
-                <div class="form-group">
-                    <label>Medication Adherence*</label>
-                    <p style="color: #666; margin-bottom: 0.5rem;">Did you take your medication as prescribed?</p>
-                    <div class="rating-scale">
-                        <button type="button" class="rating-button" data-category="medication" data-value="0">
-                            <span class="label">Not<br>Applicable</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="medication" data-value="1">
-                            <span class="label">No<br>Doses</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="medication" data-value="3">
-                            <span class="label">Partial<br>Doses</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="medication" data-value="5">
-                            <span class="label">Yes,<br>All Doses</span>
-                        </button>
-                    </div>
-                    <input type="hidden" id="medicationValue" name="medicationValue" required>
-                    <textarea id="medicationNotes" name="medicationNotes" placeholder="Optional notes about medication..."
-                              style="margin-top: 1rem;"></textarea>
-                </div>
-
-                <!-- Physical Activity -->
-                <div class="form-group">
-                    <label>Physical Activity*</label>
-                    <p style="color: #666; margin-bottom: 0.5rem;">How much physical activity did you do today?</p>
-                    <div class="rating-scale">
-                        <button type="button" class="rating-button" data-category="activity" data-value="1">
-                            <span class="icon">🛌</span>
-                            <span>1</span>
-                            <span class="label">No Activity</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="activity" data-value="2">
-                            <span class="icon">🚶</span>
-                            <span>2</span>
-                            <span class="label">Light</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="activity" data-value="3">
-                            <span class="icon">🚴</span>
-                            <span>3</span>
-                            <span class="label">Moderate</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="activity" data-value="4">
-                            <span class="icon">🏃</span>
-                            <span>4</span>
-                            <span class="label">Active</span>
-                        </button>
-                        <button type="button" class="rating-button" data-category="activity" data-value="5">
-                            <span class="icon">🏋️</span>
-                            <span>5</span>
-                            <span class="label">Very Active</span>
-                        </button>
-                    </div>
-                    <input type="hidden" id="activityValue" name="activityValue" required>
-                    <textarea id="activityNotes" name="activityNotes" placeholder="Optional notes about physical activity..."
-                              style="margin-top: 1rem;"></textarea>
-                </div>
-
-                <button type="submit" class="btn">Submit Daily Check-In</button>
-            </form>
-        </div>
-
-        <!-- Week Progress Tab -->
-        <div id="progress" class="tab-content">
-            <div class="section-header">
-                <h2>Week Progress</h2>
-                <p>View patient's weekly check-in status and responses</p>
-            </div>
-
-            <div class="form-section">
-                <div class="two-column">
-                    <div class="form-group">
-                        <label for="progressPatientId">Select Patient</label>
-                        <select id="progressPatientId" name="progressPatientId">
-                            <option value="">Select Patient</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="progressWeek">Select Week</label>
-                        <input type="week" id="progressWeek" name="progressWeek">
-                    </div>
-                </div>
-
-                <button type="button" class="btn" onclick="loadWeekProgress()">Load Week Data</button>
-                <button type="button" class="btn btn-secondary" onclick="refreshWeekProgress()" style="margin-left: 1rem;">Refresh</button>
-            </div>
-
-            <div id="weekProgressDisplay" style="display: none;">
-                <h3 style="margin: 2rem 0 1rem;">Week Overview</h3>
-                <div id="weekGrid" class="week-grid"></div>
-
-                <h3 style="margin: 2rem 0 1rem;">Daily Details</h3>
-                <div id="weekDetails"></div>
-            </div>
-        </div>
-
-        <!-- Patient Management Tab -->
-        <div id="management" class="tab-content">
-            <div class="section-header">
-                <h2>Patient Management</h2>
-                <p>View and manage enrolled patients</p>
-            </div>
-
-            <div id="patientListContainer" class="patient-list">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Loading patients...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Generate Reports Tab -->
-        <div id="reports" class="tab-content">
-            <div class="section-header">
-                <h2>Generate Reports</h2>
-                <p>Generate weekly Excel reports for therapists</p>
-            </div>
-
-            <div class="form-section">
-                <div class="two-column">
-                    <div class="form-group">
-                        <label for="reportPatientId">Select Patient</label>
-                        <select id="reportPatientId" name="reportPatientId">
-                            <option value="">Select Patient</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="reportWeek">Select Week</label>
-                        <input type="week" id="reportWeek" name="reportWeek">
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 1rem;">
-                    <button type="button" class="btn" onclick="generateExcelReport()">Generate Excel Report</button>
-                    <button type="button" class="btn btn-secondary" onclick="prepareEmailReport()">Prepare Email Report</button>
-                </div>
-            </div>
-
-            <div id="reportStatus" style="margin-top: 2rem; display: none;">
-                <h3>Report Status</h3>
-                <div id="reportStatusContent"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Global variables
-        let currentTab = 'enrollment';
-        let enrolledPatients = [];
-        //let authToken = 'development-only-token'; // Default token for development
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Therapeutic Companion initialized');
-
-            // Set today's date as default
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('enrollmentDate').value = today;
-            document.getElementById('checkinDate').value = today;
-
-            // Set current time
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('checkinTime').value = `${hours}:${minutes}`;
-
-            // Set current week
-            const weekInputs = document.querySelectorAll('input[type="week"]');
-            const currentWeek = getISOWeek(new Date());
-            weekInputs.forEach(input => input.value = currentWeek);
-
-            // Load patients
-            loadPatients();
-
-            // Setup event listeners
-            setupEventListeners();
-        });
-
-        // Helper function to get auth headers
-        function getAuthHeaders() {
-            return {
-                'Content-Type': 'application/json',
-                //'Authorization': `Bearer ${authToken}`
-            };
-        }
-
-        // Tab switching
-        function showTab(tabName) {
-            console.log('Switching to tab:', tabName);
-
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-
-            // Add active class to clicked tab button
-            event.target.classList.add('active');
-
-            currentTab = tabName;
-
-            // Load data based on tab
-            if (tabName === 'management') {
-                loadPatientManagement();
-            }
-
-            // Clear messages
-            clearMessages();
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            console.log('Setting up event listeners');
-
-            // Enrollment form
-            document.getElementById('enrollmentForm').addEventListener('submit', enrollPatient);
-
-            // Check-in form
-            document.getElementById('checkinForm').addEventListener('submit', submitDailyCheckIn);
-
-            // Rating buttons
-            document.querySelectorAll('.rating-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const category = this.dataset.category;
-                    const value = this.dataset.value;
-
-                    console.log('Rating selected:', category, value);
-
-                    // Remove selected class from other buttons in same category
-                    document.querySelectorAll(`.rating-button[data-category="${category}"]`).forEach(btn => {
-                        btn.classList.remove('selected');
-                    });
-
-                    // Add selected class to clicked button
-                    this.classList.add('selected');
-
-                    // Set hidden input value
-                    if (category === 'emotional') {
-                        document.getElementById('emotionalValue').value = value;
-                    } else if (category === 'medication') {
-                        document.getElementById('medicationValue').value = value;
-                    } else if (category === 'activity') {
-                        document.getElementById('activityValue').value = value;
-                    }
-                });
-            });
-        }
-
-        // Enroll patient
-        async function enrollPatient(event) {
-            event.preventDefault();
-            console.log('Enrolling patient...');
-
-            const formData = new FormData(event.target);
-            const patientData = {
-                patientId: formData.get('patientId'),
-                name: formData.get('patientName'),
-                age: formData.get('patientAge'),
-                gender: formData.get('patientGender'),
-                therapistName: formData.get('therapistName'),
-                therapistEmail: formData.get('therapistEmail'),
-                enrollmentDate: formData.get('enrollmentDate'),
-                notes: formData.get('patientNotes'),
-                status: 'active'
-            };
-
-            const accessCode = formData.get('accessCode');
-
-            console.log('Patient data:', patientData);
-
-            try {
-                const response = await fetch('/api/therapy/save-patient', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        patientId: patientData.patientId,
-                        patientData: patientData,
-                        accessCode: accessCode
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Enrollment result:', result);
-
-                if (result.success) {
-                    showSuccess('Patient enrolled successfully!');
-                    event.target.reset();
-
-                    // Set today's date again
-                    document.getElementById('enrollmentDate').value = new Date().toISOString().split('T')[0];
-
-                    // Reload patients
-                    loadPatients();
-                } else {
-                    showError(result.error || 'Failed to enroll patient');
-                }
-            } catch (error) {
-                console.error('Error enrolling patient:', error);
-                showError('Error enrolling patient: ' + error.message);
-            }
-        }
-
-        // Submit daily check-in
-        async function submitDailyCheckIn(event) {
-            event.preventDefault();
-            console.log('Submitting daily check-in...');
-
-            const patientId = document.getElementById('checkinPatientId').value;
-            const date = document.getElementById('checkinDate').value;
-            const time = document.getElementById('checkinTime').value;
-
-            const emotionalValue = document.getElementById('emotionalValue').value;
-            const medicationValue = document.getElementById('medicationValue').value;
-            const activityValue = document.getElementById('activityValue').value;
-
-            if (!emotionalValue || !medicationValue || !activityValue) {
-                showError('Please rate all three areas (emotional state, medication, and physical activity)');
-                return;
-            }
-
-            const checkinData = {
-                date: date,
-                time: time,
-                timestamp: `${date} ${time}`,
-                emotional: {
-                    value: parseInt(emotionalValue),
-                    notes: document.getElementById('emotionalNotes').value
-                },
-                medication: {
-                    value: parseInt(medicationValue),
-                    notes: document.getElementById('medicationNotes').value
-                },
-                activity: {
-                    value: parseInt(activityValue),
-                    notes: document.getElementById('activityNotes').value
-                }
-            };
-
-            console.log('Check-in data:', checkinData);
-
-            try {
-                const response = await fetch('/api/therapy/save-checkin', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        patientId: patientId,
-                        checkinData: checkinData
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Check-in result:', result);
-
-                if (result.success) {
-                    showSuccess('Daily check-in submitted successfully!');
-
-                    // Reset form but keep patient selected
-                    const selectedPatient = document.getElementById('checkinPatientId').value;
-                    document.getElementById('checkinForm').reset();
-                    document.getElementById('checkinPatientId').value = selectedPatient;
-
-                    // Reset date and time to current
-                    document.getElementById('checkinDate').value = new Date().toISOString().split('T')[0];
-                    const now = new Date();
-                    document.getElementById('checkinTime').value =
-                        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-                    // Clear rating selections
-                    document.querySelectorAll('.rating-button').forEach(btn => {
-                        btn.classList.remove('selected');
-                    });
-                } else {
-                    showError(result.error || 'Failed to submit check-in');
-                }
-            } catch (error) {
-                console.error('Error submitting check-in:', error);
-                showError('Error submitting check-in: ' + error.message);
-            }
-        }
-
-        // Load patients
-        async function loadPatients() {
-            console.log('Loading patients...');
-            try {
-                const response = await fetch('/api/therapy/get-all-patients', {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-
-                console.log('Loaded patients:', result);
-
-                if (result.success) {
-                    enrolledPatients = result.patients;
-                    updatePatientSelects();
-                }
-            } catch (error) {
-                console.error('Error loading patients:', error);
-            }
-        }
-
-        // Update patient select dropdowns
-        function updatePatientSelects() {
-            const selects = [
-                'checkinPatientId',
-                'progressPatientId',
-                'reportPatientId'
-            ];
-
-            selects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if (select) {
-                    // Keep current selection
-                    const currentValue = select.value;
-
-                    // Clear and rebuild options
-                    select.innerHTML = '<option value="">Select Patient</option>';
-
-                    enrolledPatients.forEach(patient => {
-                        const option = document.createElement('option');
-                        option.value = patient.patientId;
-                        option.textContent = `${patient.patientId} - ${patient.name}`;
-                        select.appendChild(option);
-                    });
-
-                    // Restore selection if it still exists
-                    if (currentValue && enrolledPatients.some(p => p.patientId === currentValue)) {
-                        select.value = currentValue;
-                    }
-                }
-            });
-        }
-
-        // Load week progress
-        async function loadWeekProgress() {
-            const patientId = document.getElementById('progressPatientId').value;
-            const week = document.getElementById('progressWeek').value;
-
-            if (!patientId || !week) {
-                showError('Please select both patient and week');
-                return;
-            }
-
-            console.log('Loading week progress:', patientId, week);
-
-            try {
-                const response = await fetch(`/api/therapy/get-week-data/${patientId}/${week}`, {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-
-                console.log('Week data received:', result);
-                console.log('Week data details:', result.weekData);
-
-                if (result.success) {
-                    displayWeekProgress(result.weekData, week);
-                    showSuccess('Week data loaded successfully');
-                } else {
-                    showError(result.error || 'Failed to load week data');
-                }
-            } catch (error) {
-                console.error('Error loading week data:', error);
-                showError('Error loading week data: ' + error.message);
-            }
-        }
-
-        // Display week progress
-        function displayWeekProgress(weekData, weekString) {
-            const weekDisplay = document.getElementById('weekProgressDisplay');
-            const weekGrid = document.getElementById('weekGrid');
-            const weekDetails = document.getElementById('weekDetails');
-
-            // Clear previous data
-            weekGrid.innerHTML = '';
-            weekDetails.innerHTML = '';
-
-            // Parse week to get dates
-            const [year, weekNum] = weekString.split('-W');
-            const weekDates = getWeekDates(parseInt(year), parseInt(weekNum));
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-            console.log('Week dates calculated:', weekDates.map(d => d.toISOString().split('T')[0]));
-            console.log('Week data keys:', Object.keys(weekData));
-
-            // Create day cards
-            weekDates.forEach((date, index) => {
-                const dateStr = date.toISOString().split('T')[0];
-                const dayCard = document.createElement('div');
-                dayCard.className = 'day-card';
-
-                console.log(`Checking ${dateStr} in weekData:`, weekData.hasOwnProperty(dateStr));
-
-                if (weekData[dateStr]) {
-                    dayCard.classList.add('completed');
-                    const data = weekData[dateStr];
-                    dayCard.innerHTML = `
-                        <h4>${days[index]}</h4>
-                        <p>${date.toLocaleDateString()}</p>
-                        <p style="font-size: 0.9rem; color: #28a745;">✓ Completed</p>
-                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">
-                            E: ${data.emotional.value}/5<br>
-                            M: ${data.medication.value}/5<br>
-                            A: ${data.activity.value}/5
-                        </p>
-                    `;
-                } else {
-                    if (date <= new Date()) {
-                        dayCard.classList.add('missed');
-                        dayCard.innerHTML = `
-                            <h4>${days[index]}</h4>
-                            <p>${date.toLocaleDateString()}</p>
-                            <p style="font-size: 0.9rem; color: #dc3545;">✗ No Response</p>
-                        `;
-                    } else {
-                        dayCard.innerHTML = `
-                            <h4>${days[index]}</h4>
-                            <p>${date.toLocaleDateString()}</p>
-                            <p style="font-size: 0.9rem; color: #999;">Pending</p>
-                        `;
-                    }
-                }
-
-                weekGrid.appendChild(dayCard);
-            });
-
-            // Create detailed view
-            if (Object.keys(weekData).length > 0) {
-                let detailsHTML = '<div class="form-section">';
-
-                Object.keys(weekData).sort().forEach(dateStr => {
-                    const data = weekData[dateStr];
-                    const date = new Date(dateStr);
-
-                    detailsHTML += `
-                        <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #e0e0e0;">
-                            <h4>${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h4>
-                            <p style="color: #666; margin-bottom: 1rem;">Check-in time: ${data.time}</p>
-
-                            <div class="two-column">
-                                <div>
-                                    <strong>Emotional State:</strong> ${data.emotional.value}/5
-                                    ${data.emotional.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.emotional.notes}</p>` : ''}
-                                </div>
-                                <div>
-                                    <strong>Medication Adherence:</strong> ${data.medication.value}/5
-                                    ${data.medication.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.medication.notes}</p>` : ''}
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 1rem;">
-                                <strong>Physical Activity:</strong> ${data.activity.value}/5
-                                ${data.activity.notes ? `<p style="color: #666; margin-top: 0.5rem;">${data.activity.notes}</p>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                detailsHTML += '</div>';
-                weekDetails.innerHTML = detailsHTML;
-            } else {
-                weekDetails.innerHTML = '<p style="text-align: center; color: #666;">No check-ins recorded for this week.</p>';
-            }
-
-            weekDisplay.style.display = 'block';
-        }
-
-        // Load patient management
-        async function loadPatientManagement() {
-            const container = document.getElementById('patientListContainer');
-            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading patients...</p></div>';
-
-            console.log('Loading patient management...');
-
-            try {
-                const response = await fetch('/api/therapy/get-all-patients', {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-
-                console.log('Patient management data:', result);
-
-                if (result.success) {
-                    displayPatientList(result.patients);
-                } else {
-                    container.innerHTML = '<p style="text-align: center; color: #666;">No patients enrolled yet.</p>';
-                }
-            } catch (error) {
-                console.error('Error loading patient management:', error);
-                container.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading patients.</p>';
-            }
-        }
-
-        // Display patient list
-        function displayPatientList(patients) {
-            const container = document.getElementById('patientListContainer');
-
-            if (patients.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">No patients enrolled yet.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-
-            patients.forEach(patient => {
-                const card = document.createElement('div');
-                card.className = 'patient-card';
-
-                card.innerHTML = `
-                    <div class="patient-info">
-                        <h3>${patient.name}</h3>
-                        <p>ID: ${patient.patientId} | Age: ${patient.age} | Gender: ${patient.gender || 'Not specified'}</p>
-                        <p>Therapist: ${patient.therapistName} (${patient.therapistEmail})</p>
-                        <p>Enrolled: ${new Date(patient.enrollmentDate).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                        <span class="status-badge ${patient.status === 'active' ? 'active' : 'inactive'}">
-                            ${patient.status === 'active' ? 'Active' : 'Inactive'}
-                        </span>
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
-        }
-
-        // Generate Excel report
-        async function generateExcelReport() {
-            const patientId = document.getElementById('reportPatientId').value;
-            const week = document.getElementById('reportWeek').value;
-
-            if (!patientId || !week) {
-                showError('Please select both patient and week');
-                return;
-            }
-
-            console.log('Generating Excel report:', patientId, week);
-
-            try {
-                const response = await fetch(`/api/therapy/generate-excel-report/${patientId}/${week}`, {
-                    headers: getAuthHeaders()
-                });
-
-                if (response.ok) {
-                    // Get filename from response headers
-                    const contentDisposition = response.headers.get('content-disposition');
-                    const filenameMatch = contentDisposition && contentDisposition.match(/filename="(.+)"/);
-                    const filename = filenameMatch ? filenameMatch[1] : `therapy_report_${patientId}_${week}.xlsx`;
-
-                    console.log('Downloading Excel report:', filename);
-
-                    // Download file
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-
-                    showSuccess('Excel report generated and downloaded successfully!');
-
-                    // Show status
-                    const statusDiv = document.getElementById('reportStatus');
-                    const statusContent = document.getElementById('reportStatusContent');
-                    statusDiv.style.display = 'block';
-                    statusContent.innerHTML = `
-                        <p class="success" style="color: #155724;">
-                            ✓ Report generated successfully!<br>
-                            Filename: ${filename}
-                        </p>
-                    `;
-                } else {
-                    const error = await response.json();
-                    showError(error.error || 'Failed to generate report');
-                }
-            } catch (error) {
-                console.error('Error generating report:', error);
-                showError('Error generating report: ' + error.message);
-            }
-        }
-
-        // Prepare email report
-        async function prepareEmailReport() {
-            const patientId = document.getElementById('reportPatientId').value;
-            const week = document.getElementById('reportWeek').value;
-
-            if (!patientId || !week) {
-                showError('Please select both patient and week');
-                return;
-            }
-
-            console.log('Preparing email report:', patientId, week);
-
-            try {
-                const response = await fetch('/api/therapy/email-report', {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        patientId: patientId,
-                        week: week
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Email report result:', result);
-
-                if (result.success) {
-                    // Show email preview
-                    const statusDiv = document.getElementById('reportStatus');
-                    const statusContent = document.getElementById('reportStatusContent');
-                    statusDiv.style.display = 'block';
-
-                    // Check if email was actually sent or just prepared
-                    const emailWasSent = result.note && result.note.toLowerCase().includes('email sent with excel attachment');
-
-                    let statusHTML = `
-                        <div class="form-section">
-                            <h4>${emailWasSent ? 'Email Report Sent Successfully' : 'Email Report Preview'}</h4>
-                            <p><strong>To:</strong> ${result.recipient}</p>
-                            <p><strong>Subject:</strong> ${result.subject}</p>
-                            ${result.attachment ? `<p><strong>Attachment:</strong> ${result.attachment}</p>` : ''}
-                            <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
-                                <pre style="white-space: pre-wrap; font-family: inherit;">${result.content}</pre>
-                            </div>
-                    `;
-
-                    if (result.config_example) {
-                        statusHTML += `
-                            <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px;">
-                                <h5>📧 Email Setup Required</h5>
-                                <p>To enable automatic email sending, create a file <code>therapy_data/email_config.json</code> with:</p>
-                                <pre style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; overflow-x: auto;">${JSON.stringify(result.config_example, null, 2)}</pre>
-                                <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-                                    <strong>For Gmail:</strong> Use an App Password from
-                                    <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a>
-                                </p>
-                            </div>
-                        `;
-                    }
-
-                    statusHTML += `
-                            <p style="margin-top: 1rem; color: #666;">
-                                <em>${result.note}</em>
-                            </p>
-                        </div>
-                    `;
-
-                    statusContent.innerHTML = statusHTML;
-
-                    if (emailWasSent) {
-                        showSuccess('Email sent successfully with Excel attachment!');
-                    } else {
-                        showSuccess('Email report prepared! To send automatically, configure email settings.');
-                    }
-                } else {
-                    showError(result.error || 'Failed to prepare email report');
-                }
-            } catch (error) {
-                console.error('Error preparing email report:', error);
-                showError('Error preparing email report: ' + error.message);
-            }
-        }
-
-        // Refresh week progress
-        function refreshWeekProgress() {
-            const patientId = document.getElementById('progressPatientId').value;
-            const week = document.getElementById('progressWeek').value;
-
-            if (!patientId || !week) {
-                showError('Please select patient and week first');
-                return;
-            }
-
-            console.log('Refreshing week progress...');
-            loadWeekProgress();
-        }
-
-        // Utility functions
-        function showSuccess(message) {
-            console.log('Success:', message);
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        function showError(message) {
-            console.error('Error:', message);
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        function clearMessages() {
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-        }
-
-        function getISOWeek(date) {
-            const year = date.getFullYear();
-            const weekNum = getWeekNumber(date);
-            return `${year}-W${String(weekNum).padStart(2, '0')}`;
-        }
-
-        function getWeekNumber(date) {
-            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-        }
-
-        function getWeekDates(year, weekNum) {
-            // Simple approach: Get the first Thursday of the year
-            const jan1 = new Date(year, 0, 1);
-            const jan1Day = jan1.getDay() || 7; // Make Sunday = 7
-
-            // Find the first Thursday
-            let firstThursday = new Date(year, 0, 1);
-            if (jan1Day <= 4) {
-                firstThursday.setDate(1 + (4 - jan1Day));
-            } else {
-                firstThursday.setDate(1 + (11 - jan1Day));
-            }
-
-            // Get the Monday of that week
-            const firstMonday = new Date(firstThursday);
-            firstMonday.setDate(firstThursday.getDate() - 3);
-
-            // Calculate the Monday of the requested week
-            const weekStart = new Date(firstMonday);
-            weekStart.setDate(firstMonday.getDate() + (weekNum - 1) * 7);
-
-            const dates = [];
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(weekStart);
-                date.setDate(date.getDate() + i);
-                dates.push(date);
-            }
-
-            return dates;
-        }
-    </script>
-</body>
-</html>
+"""
+Public Therapeutic Companion Web Backend - Hybrid Database Version
+Uses database for persistence but maintains JSON structure
+Works on Render's free tier with PostgreSQL
+"""
+
+from flask import Flask, request, jsonify, send_file, Response
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import json
+import os
+import io
+from datetime import datetime, timedelta
+from pathlib import Path
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from sqlalchemy import and_
+import tempfile
+
+# Import database models
+from database_models import db, Patient, CheckIn, Report, ActivityLog
+
+# Optional: Load environment variables from .env file for local development
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# Import the social worker components
+from socialworkcountry import GlobalSocialWorkerChatbot, PatientProfile
+
+# Create Flask app
+app = Flask(__name__)
+
+# Database configuration
+if os.environ.get('DATABASE_URL'):
+    # Render PostgreSQL
+    database_url = os.environ.get('DATABASE_URL')
+    # Fix for SQLAlchemy (Render uses postgres:// but SQLAlchemy needs postgresql://)
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Local SQLite for development
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///therapy_data.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+    print("Database tables created successfully")
+
+# Configure CORS for production
+if os.environ.get('PRODUCTION'):
+    CORS(app, origins=[os.environ.get('ALLOWED_ORIGINS', '*')])
+else:
+    CORS(app)  # Allow all origins in development
+
+# Initialize rate limiter for public use
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["1000 per day", "100 per hour"]  # Generous limits for public use
+)
+
+# Initialize the social worker chatbot
+chatbot = GlobalSocialWorkerChatbot()
+
+
+# ============= HELPER FUNCTIONS =============
+
+def get_system_email_config():
+    """Get system email configuration from environment variables"""
+    # PRODUCTION: Use environment variables
+    if os.environ.get('SYSTEM_EMAIL') and os.environ.get('SYSTEM_EMAIL_PASSWORD'):
+        return {
+            'sender_email': os.environ.get('SYSTEM_EMAIL'),
+            'sender_password': os.environ.get('SYSTEM_EMAIL_PASSWORD'),
+            'smtp_server': os.environ.get('SMTP_SERVER', 'smtp.gmail.com'),
+            'smtp_port': int(os.environ.get('SMTP_PORT', '587'))
+        }
+
+    # No configuration found
+    return None
+
+
+def log_email_activity(patient_id, recipient, week, status):
+    """Log email sending activity to database"""
+    log_data = {
+        'patient_id': patient_id,
+        'recipient': recipient,
+        'week': week,
+        'status': status,
+        'system_email': os.environ.get('SYSTEM_EMAIL', 'not_configured')
+    }
+
+    log_entry = ActivityLog(
+        activity_type='email_sent',
+        ip_address=request.remote_addr if request else 'system'
+    )
+    log_entry.set_data(log_data)
+
+    db.session.add(log_entry)
+    db.session.commit()
+
+
+def log_activity(activity_type, data):
+    """Log general system activity to database"""
+    log_entry = ActivityLog(
+        activity_type=activity_type,
+        ip_address=request.remote_addr if request else 'system'
+    )
+    log_entry.set_data(data)
+
+    db.session.add(log_entry)
+    db.session.commit()
+
+
+# ============= PUBLIC ENDPOINTS =============
+
+@app.route('/')
+def index():
+    """Serve the main HTML file"""
+    if os.path.exists('therapy_tracker.html'):
+        with open('therapy_tracker.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    elif os.path.exists('client.html'):
+        with open('client.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    else:
+        return f"""
+        <html>
+        <body>
+            <h1>Therapeutic Companion Server Running</h1>
+            <p>Database-backed version for Render deployment</p>
+            <h2>Features:</h2>
+            <ul>
+                <li>✅ Public access - no login required</li>
+                <li>✅ Patient enrollment by therapists</li>
+                <li>✅ Daily check-ins tracking</li>
+                <li>✅ Weekly Excel reports</li>
+                <li>✅ Automatic email delivery</li>
+                <li>✅ System email sends all reports</li>
+                <li>✅ Database persistence (PostgreSQL/SQLite)</li>
+            </ul>
+            <p><strong>Database:</strong> {'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'}</p>
+        </body>
+        </html>
+        """
+
+
+# ============= THERAPY TRACKING ENDPOINTS (PUBLIC) =============
+
+@app.route('/api/therapy/save-patient', methods=['POST'])
+@limiter.limit("50 per hour")  # Prevent spam enrollment
+def save_therapy_patient():
+    """Save therapy patient enrollment data"""
+    try:
+        data = request.json
+        patient_id = data.get('patientId')
+        patient_data = data.get('patientData')
+
+        # Required access code for security
+        access_code = data.get('accessCode')
+        required_code = os.environ.get('ACCESS_CODE', 'therapy2024')
+
+        if access_code != required_code:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid access code'
+            }), 403
+
+        if not patient_id or not patient_data:
+            return jsonify({
+                'success': False,
+                'error': 'Missing patient ID or data'
+            }), 400
+
+        # Add enrollment metadata
+        patient_data['enrollmentTimestamp'] = datetime.now().isoformat()
+        patient_data['enrolledFrom'] = request.remote_addr
+        patient_data['weeklyReports'] = []
+
+        # Check if patient exists
+        patient = Patient.query.get(patient_id)
+        if patient:
+            # Update existing patient
+            patient.set_data(patient_data)
+        else:
+            # Create new patient
+            patient = Patient(id=patient_id)
+            patient.set_data(patient_data)
+            db.session.add(patient)
+
+        db.session.commit()
+
+        # Log activity
+        log_activity('patient_enrolled', {
+            'patient_id': patient_id,
+            'therapist_email': patient_data.get('therapistEmail')
+        })
+
+        return jsonify({
+            'success': True,
+            'message': 'Patient enrolled successfully',
+            'patient_id': patient_id
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/therapy/save-checkin', methods=['POST'])
+@limiter.limit("200 per hour")  # Allow multiple check-ins
+def save_therapy_checkin():
+    """Save comprehensive daily check-in data"""
+    try:
+        data = request.json
+        patient_id = data.get('patientId')
+        checkin_data = data.get('checkinData')
+
+        if not patient_id or not checkin_data:
+            return jsonify({
+                'success': False,
+                'error': 'Missing patient ID or check-in data'
+            }), 400
+
+        # Verify patient exists
+        patient = Patient.query.get(patient_id)
+        if not patient:
+            return jsonify({'success': False, 'error': 'Patient not found'}), 404
+
+        # Validate check-in data
+        required_fields = ['date', 'time', 'emotional', 'medication', 'activity']
+        for field in required_fields:
+            if field not in checkin_data:
+                return jsonify({
+                    'success': False,
+                    'error': f'Missing required field: {field}'
+                }), 400
+
+        # Add metadata
+        checkin_data['serverTimestamp'] = datetime.now().isoformat()
+        checkin_data['submittedFrom'] = request.remote_addr
+
+        # Check if check-in exists for this date
+        date = checkin_data.get('date')
+        checkin = CheckIn.query.filter_by(patient_id=patient_id, date=date).first()
+
+        if checkin:
+            # Update existing check-in
+            checkin.set_data(checkin_data)
+        else:
+            # Create new check-in
+            checkin = CheckIn(patient_id=patient_id, date=date)
+            checkin.set_data(checkin_data)
+            db.session.add(checkin)
+
+        db.session.commit()
+
+        # Log activity
+        log_activity('checkin_recorded', {
+            'patient_id': patient_id,
+            'date': date
+        })
+
+        return jsonify({
+            'success': True,
+            'message': 'Daily check-in saved successfully',
+            'date': date
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/therapy/get-week-data/<patient_id>/<week>', methods=['GET'])
+def get_week_data(patient_id, week):
+    """Get all check-in data for a specific week"""
+    try:
+        week_data = {}
+
+        # Parse week string
+        year, week_num = week.split('-W')
+        year = int(year)
+        week_num = int(week_num)
+
+        # Calculate week dates
+        jan_4 = datetime(year, 1, 4)
+        week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+        week_start = week_1_monday + timedelta(weeks=week_num - 1)
+
+        # Get data for each day
+        for i in range(7):
+            date = week_start + timedelta(days=i)
+            date_str = date.strftime('%Y-%m-%d')
+
+            checkin = CheckIn.query.filter_by(patient_id=patient_id, date=date_str).first()
+            if checkin:
+                week_data[date_str] = checkin.get_data()
+
+        return jsonify({
+            'success': True,
+            'weekData': week_data
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/therapy/get-all-patients', methods=['GET'])
+def get_all_therapy_patients():
+    """Get list of all enrolled therapy patients"""
+    try:
+        patients = []
+
+        # Query all patients
+        all_patients = Patient.query.all()
+
+        for patient in all_patients:
+            patient_data = patient.get_data()
+            patient_data['patientId'] = patient.id
+            patients.append(patient_data)
+
+        return jsonify({
+            'success': True,
+            'patients': patients
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/therapy/generate-excel-report/<patient_id>/<week>', methods=['GET'])
+@limiter.limit("30 per hour")  # Limit report generation
+def generate_excel_report(patient_id, week):
+    """Generate comprehensive Excel report for a patient's week"""
+    try:
+        # Get patient data
+        patient = Patient.query.get(patient_id)
+        if not patient:
+            return jsonify({'success': False, 'error': 'Patient not found'}), 404
+
+        patient_data = patient.get_data()
+        patient_data['patientId'] = patient_id
+
+        # Get week data
+        week_response = get_week_data(patient_id, week)
+        week_data_json = week_response.get_json()
+        week_data = week_data_json.get('weekData', {})
+
+        # Create Excel workbook
+        wb = openpyxl.Workbook()
+
+        # Create Summary Sheet
+        summary_sheet = wb.active
+        summary_sheet.title = "Weekly Summary"
+
+        # Styles
+        header_font = Font(bold=True, size=14)
+        subheader_font = Font(bold=True, size=12)
+
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        subheader_fill = PatternFill(start_color="DCE6F1", end_color="DCE6F1", fill_type="solid")
+
+        border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
+        # Add patient information
+        summary_sheet['A1'] = "WEEKLY THERAPY TRACKING REPORT"
+        summary_sheet['A1'].font = Font(bold=True, size=16)
+        summary_sheet.merge_cells('A1:F1')
+
+        summary_sheet['A3'] = "Patient Information"
+        summary_sheet['A3'].font = subheader_font
+        summary_sheet.merge_cells('A3:B3')
+
+        patient_info_rows = [
+            ("Patient ID:", patient_data['patientId']),
+            ("Patient Name:", patient_data['name']),
+            ("Therapist:", patient_data['therapistName']),
+            ("Therapist Email:", patient_data['therapistEmail']),
+            ("Week:", week),
+            ("Report Generated:", datetime.now().strftime("%Y-%m-%d %H:%M"))
+        ]
+
+        row = 4
+        for label, value in patient_info_rows:
+            summary_sheet[f'A{row}'] = label
+            summary_sheet[f'B{row}'] = value
+            summary_sheet[f'A{row}'].font = Font(bold=True)
+            row += 1
+
+        # Add summary statistics
+        summary_sheet['D3'] = "Weekly Statistics"
+        summary_sheet['D3'].font = subheader_font
+        summary_sheet.merge_cells('D3:F3')
+
+        # Calculate statistics
+        total_days = 7
+        completed_days = len(week_data)
+
+        if completed_days > 0:
+            total_emotional = sum(data['emotional']['value'] for data in week_data.values())
+            total_medication = sum(data['medication']['value'] for data in week_data.values())
+            total_activity = sum(data['activity']['value'] for data in week_data.values())
+
+            avg_emotional = total_emotional / completed_days
+            avg_medication = total_medication / completed_days
+            avg_activity = total_activity / completed_days
+        else:
+            avg_emotional = avg_medication = avg_activity = 0
+
+        stats_rows = [
+            ("Completion Rate:", f"{completed_days}/{total_days} ({completed_days / 7 * 100:.1f}%)"),
+            ("Avg Emotional State:", f"{avg_emotional:.2f}/5" if completed_days > 0 else "N/A"),
+            ("Avg Medication Adherence:", f"{avg_medication:.2f}/5" if completed_days > 0 else "N/A"),
+            ("Avg Physical Activity:", f"{avg_activity:.2f}/5" if completed_days > 0 else "N/A")
+        ]
+
+        row = 4
+        for label, value in stats_rows:
+            summary_sheet[f'D{row}'] = label
+            summary_sheet[f'E{row}'] = value
+            summary_sheet[f'D{row}'].font = Font(bold=True)
+            row += 1
+
+        # Create Daily Data Sheet
+        daily_sheet = wb.create_sheet("Daily Check-ins")
+
+        # Headers for daily data
+        headers = ["Date", "Day", "Time", "Emotional State", "Emotional Notes",
+                   "Medication Adherence", "Medication Notes", "Physical Activity",
+                   "Activity Notes", "Check-in Status"]
+
+        for col, header in enumerate(headers, 1):
+            cell = daily_sheet.cell(row=1, column=col, value=header)
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal='center')
+            cell.border = border
+
+        # Parse week to get dates
+        year, week_num = week.split('-W')
+        year = int(year)
+        week_num = int(week_num)
+
+        # Calculate week start date
+        jan_4 = datetime(year, 1, 4)
+        week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+        week_start = week_1_monday + timedelta(weeks=week_num - 1)
+
+        # Add daily data
+        days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+        for day_num in range(7):
+            current_date = week_start + timedelta(days=day_num)
+            date_str = current_date.strftime('%Y-%m-%d')
+
+            row = day_num + 2
+            daily_sheet.cell(row=row, column=1, value=date_str).border = border
+            daily_sheet.cell(row=row, column=2, value=days_of_week[day_num]).border = border
+
+            if date_str in week_data:
+                data = week_data[date_str]
+                daily_sheet.cell(row=row, column=3, value=data.get('time', '')).border = border
+                daily_sheet.cell(row=row, column=4, value=data['emotional']['value']).border = border
+                daily_sheet.cell(row=row, column=5, value=data['emotional'].get('notes', '')).border = border
+
+                # Medication value with text labels
+                med_value = data['medication']['value']
+                medication_text = {
+                    0: "Not Applicable",
+                    1: "No Doses",
+                    3: "Partial Doses",
+                    5: "Yes, All Doses"
+                }.get(med_value, str(med_value))
+                daily_sheet.cell(row=row, column=6, value=medication_text).border = border
+                daily_sheet.cell(row=row, column=7, value=data['medication'].get('notes', '')).border = border
+                daily_sheet.cell(row=row, column=8, value=data['activity']['value']).border = border
+                daily_sheet.cell(row=row, column=9, value=data['activity'].get('notes', '')).border = border
+                daily_sheet.cell(row=row, column=10, value="Completed").border = border
+
+                # Color code emotional state
+                emotional_cell = daily_sheet.cell(row=row, column=4)
+                emotional_value = emotional_cell.value
+                if emotional_value >= 4:
+                    emotional_cell.fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+                elif emotional_value == 3:
+                    emotional_cell.fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+                else:
+                    emotional_cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+
+                # Color code medication adherence
+                medication_cell = daily_sheet.cell(row=row, column=6)
+                if med_value == 0:  # Not Applicable - no color
+                    pass
+                elif med_value == 1:  # No Doses - red
+                    medication_cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+                elif med_value == 3:  # Partial Doses - yellow
+                    medication_cell.fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+                elif med_value == 5:  # Yes, All Doses - green
+                    medication_cell.fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+
+                # Color code physical activity
+                activity_cell = daily_sheet.cell(row=row, column=8)
+                activity_value = activity_cell.value
+                if activity_value >= 4:
+                    activity_cell.fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+                elif activity_value == 3:
+                    activity_cell.fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+                else:
+                    activity_cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+            else:
+                daily_sheet.cell(row=row, column=3, value="-").border = border
+                for col in range(4, 10):
+                    daily_sheet.cell(row=row, column=col, value="-").border = border
+                cell = daily_sheet.cell(row=row, column=10, value="No Response")
+                cell.border = border
+                cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+
+        # Create Detailed Notes Sheet
+        notes_sheet = wb.create_sheet("Detailed Notes")
+
+        # Headers for notes
+        notes_headers = ["Date", "Category", "Rating", "Notes"]
+        for col, header in enumerate(notes_headers, 1):
+            cell = notes_sheet.cell(row=1, column=col, value=header)
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal='center')
+            cell.border = border
+
+        # Add all notes
+        row = 2
+        for date_str in sorted(week_data.keys()):
+            data = week_data[date_str]
+
+            # Emotional notes
+            if data['emotional'].get('notes'):
+                notes_sheet.cell(row=row, column=1, value=date_str).border = border
+                notes_sheet.cell(row=row, column=2, value="Emotional").border = border
+                notes_sheet.cell(row=row, column=3, value=data['emotional']['value']).border = border
+                notes_sheet.cell(row=row, column=4, value=data['emotional']['notes']).border = border
+                row += 1
+
+            # Medication notes
+            if data['medication'].get('notes'):
+                notes_sheet.cell(row=row, column=1, value=date_str).border = border
+                notes_sheet.cell(row=row, column=2, value="Medication").border = border
+                med_value = data['medication']['value']
+                medication_text = {
+                    0: "Not Applicable",
+                    1: "No Doses",
+                    3: "Partial Doses",
+                    5: "Yes, All Doses"
+                }.get(med_value, str(med_value))
+                notes_sheet.cell(row=row, column=3, value=medication_text).border = border
+                notes_sheet.cell(row=row, column=4, value=data['medication']['notes']).border = border
+                row += 1
+
+            # Activity notes
+            if data['activity'].get('notes'):
+                notes_sheet.cell(row=row, column=1, value=date_str).border = border
+                notes_sheet.cell(row=row, column=2, value="Physical Activity").border = border
+                notes_sheet.cell(row=row, column=3, value=data['activity']['value']).border = border
+                notes_sheet.cell(row=row, column=4, value=data['activity']['notes']).border = border
+                row += 1
+
+        # Auto-adjust column widths
+        for sheet in [summary_sheet, daily_sheet, notes_sheet]:
+            for column in sheet.columns:
+                max_length = 0
+                column_letter = get_column_letter(column[0].column)
+
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+
+                adjusted_width = min(max_length + 2, 50)
+                sheet.column_dimensions[column_letter].width = adjusted_width
+
+        # Save Excel file to temporary file
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"therapy_report_{patient_id}_{week}_{timestamp}.xlsx"
+
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+        wb.save(temp_file.name)
+        temp_file.close()
+
+        # Store report metadata in database
+        report = Report(
+            patient_id=patient_id,
+            week=week,
+            filename=filename
+        )
+
+        # Read file data
+        with open(temp_file.name, 'rb') as f:
+            report.file_data = f.read()
+
+        db.session.add(report)
+        db.session.commit()
+
+        # Log activity
+        log_activity('report_generated', {
+            'patient_id': patient_id,
+            'week': week
+        })
+
+        # Send file
+        response = send_file(
+            temp_file.name,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+
+        # Clean up temp file after sending
+        os.unlink(temp_file.name)
+
+        return response
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/therapy/email-report', methods=['POST'])
+@limiter.limit("20 per hour")  # Limit email sending
+def email_therapy_report():
+    """Send therapy report using system email account"""
+    try:
+        data = request.json
+        patient_id = data.get('patientId')
+        week = data.get('week')
+
+        # Get patient data
+        patient = Patient.query.get(patient_id)
+        if not patient:
+            return jsonify({'success': False, 'error': 'Patient not found'}), 404
+
+        patient_data = patient.get_data()
+        patient_data['patientId'] = patient_id
+
+        # Get system email configuration
+        email_config = get_system_email_config()
+
+        if not email_config:
+            return jsonify({
+                'success': True,
+                'message': 'Email report prepared',
+                'recipient': patient_data['therapistEmail'],
+                'subject': f'Weekly Therapy Report - {patient_data["name"]} - Week {week}',
+                'note': 'Email not sent - system email not configured. Contact administrator.',
+                'error': 'System administrator needs to set SYSTEM_EMAIL environment variables.'
+            })
+
+        # Find or generate Excel report
+        report = Report.query.filter_by(patient_id=patient_id, week=week).order_by(Report.created_at.desc()).first()
+
+        if not report or not report.file_data:
+            # Generate the Excel report
+            excel_response = generate_excel_report(patient_id, week)
+            # Query again
+            report = Report.query.filter_by(patient_id=patient_id, week=week).order_by(Report.created_at.desc()).first()
+
+        if not report or not report.file_data:
+            return jsonify({
+                'success': False,
+                'error': 'Could not generate Excel report'
+            }), 500
+
+        excel_filename = report.filename
+
+        # Calculate statistics for email content
+        week_response = get_week_data(patient_id, week)
+        week_data_json = week_response.get_json()
+        week_data = week_data_json.get('weekData', {})
+
+        completed_days = len(week_data)
+        if completed_days > 0:
+            avg_emotional = sum(d['emotional']['value'] for d in week_data.values()) / completed_days
+            med_values = [d['medication']['value'] for d in week_data.values() if d['medication']['value'] > 0]
+            avg_medication = sum(med_values) / len(med_values) if med_values else 0
+            avg_activity = sum(d['activity']['value'] for d in week_data.values()) / completed_days
+        else:
+            avg_emotional = avg_medication = avg_activity = 0
+
+        # Create professional email content
+        system_name = os.environ.get('SYSTEM_NAME', 'Therapeutic Companion System')
+
+        email_content = f"""
+Dear {patient_data['therapistName']},
+
+This is the weekly therapy tracking report for {patient_data['name']} (Patient ID: {patient_id}).
+
+REPORT SUMMARY
+--------------
+Week: {week}
+Completion Rate: {completed_days}/7 days ({completed_days / 7 * 100:.1f}%)
+
+Weekly Averages:
+• Emotional State: {avg_emotional:.2f}/5
+• Medication Adherence: {avg_medication:.2f}/5 {"(excluding N/A)" if avg_medication > 0 else ""}
+• Physical Activity: {avg_activity:.2f}/5
+
+The detailed Excel report is attached to this email. It includes:
+- Daily check-in data with timestamps
+- Color-coded ratings for easy visualization
+- Complete notes and observations
+- Weekly summary statistics
+
+If you have any questions about this report, please contact your system administrator.
+
+Best regards,
+{system_name}
+
+---
+This is an automated report generated by the Therapeutic Companion System.
+Please do not reply to this email address as it is not monitored.
+Report generated on: {datetime.now().strftime('%Y-%m-%d at %H:%M')}
+        """
+
+        try:
+            # Create email message
+            msg = MIMEMultipart()
+            msg['From'] = f"{system_name} <{email_config['sender_email']}>"
+            msg['To'] = patient_data['therapistEmail']
+            msg['Subject'] = f'Weekly Therapy Report - {patient_data["name"]} - Week {week}'
+
+            # Add reply-to header if configured
+            reply_to = os.environ.get('REPLY_TO_EMAIL')
+            if reply_to:
+                msg['Reply-To'] = reply_to
+
+            # Attach the email body
+            msg.attach(MIMEText(email_content, 'plain'))
+
+            # Attach the Excel file from database
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(report.file_data)
+            encoders.encode_base64(part)
+            part.add_header(
+                'Content-Disposition',
+                f'attachment; filename="{excel_filename}"'
+            )
+            msg.attach(part)
+
+            # Send the email
+            server = smtplib.SMTP(email_config['smtp_server'], email_config['smtp_port'])
+            server.starttls()
+            server.login(email_config['sender_email'], email_config['sender_password'])
+
+            # Send to therapist
+            server.send_message(msg)
+
+            # Optional: Send a copy to system admin for records
+            admin_email = os.environ.get('ADMIN_EMAIL')
+            if admin_email:
+                msg['Bcc'] = admin_email
+                server.send_message(msg)
+
+            server.quit()
+
+            # Log the email sent
+            log_email_activity(patient_id, patient_data['therapistEmail'], week, 'sent')
+
+            return jsonify({
+                'success': True,
+                'message': 'Email sent successfully',
+                'recipient': patient_data['therapistEmail'],
+                'attachment': excel_filename,
+                'note': f'Report sent from {email_config["sender_email"]}'
+            })
+
+        except Exception as e:
+            # Log the error
+            log_email_activity(patient_id, patient_data['therapistEmail'], week, f'failed: {str(e)}')
+
+            return jsonify({
+                'success': False,
+                'error': f'Failed to send email: {str(e)}',
+                'note': 'Please check system email configuration.'
+            }), 500
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============= SOCIAL WORKER ASSESSMENT ENDPOINTS (PUBLIC) =============
+
+@app.route('/api/assess', methods=['POST'])
+@limiter.limit("50 per hour")
+def assess_patient():
+    """Run comprehensive social worker assessment"""
+    try:
+        data = request.json
+
+        # Create PatientProfile from request data
+        patient = PatientProfile(
+            name=data['name'],
+            age=int(data['age']),
+            country=data['country'],
+            city=data['city'],
+            gender=data['gender'],
+            employment_status=data['employment'],
+            exercise_level=data['exercise'],
+            mental_state=data['mental'],
+            financial_status=data['financial'],
+            additional_notes=data.get('notes', '')
+        )
+
+        # Run assessments
+        chatbot.current_patient = patient
+        country_health_needs = chatbot.assess_country_specific_health_needs(patient)
+        country_safety_needs = chatbot.assess_country_specific_safety_needs(patient)
+        country_evidence_recs = chatbot.generate_country_evidence_recommendations(patient)
+        general_recommendations = chatbot.generate_comprehensive_recommendations(patient)
+
+        # Get country context
+        country_data = chatbot.health_db.country_health_data.get(patient.country, {})
+
+        # Prepare response
+        result = {
+            'success': True,
+            'patient_profile': {
+                'name': patient.name,
+                'age': patient.age,
+                'country': patient.country,
+                'city': patient.city,
+                'gender': patient.gender,
+                'employment_status': patient.employment_status,
+                'financial_status': patient.financial_status,
+                'exercise_level': patient.exercise_level,
+                'mental_state': patient.mental_state
+            },
+            'country_context': {
+                'name': patient.country.replace('_', ' ').title(),
+                'mental_health_prevalence': country_data.get('mental_health_prevalence', 0.20) * 100,
+                'healthcare_system': country_data.get('healthcare_system', 'Unknown').replace('_', ' ').title(),
+                'common_health_issues': country_data.get('common_health_issues', []),
+                'crisis_resources': country_data.get('crisis_resources', [])
+            },
+            'risk_indicators': {
+                'level': 'critical' if patient.mental_state == 'Critical' else
+                'high' if patient.mental_state == 'Poor' else
+                'moderate' if patient.mental_state == 'Fair' else 'low',
+                'requires_immediate_attention': patient.mental_state in ['Critical', 'Poor']
+            },
+            'assessments': {
+                'country_health_needs': country_health_needs,
+                'country_safety_needs': country_safety_needs,
+                'country_evidence_recommendations': country_evidence_recs,
+                'general_recommendations': general_recommendations
+            },
+            'age_category': chatbot.determine_age_category(patient.age),
+            'city_category': chatbot.determine_city_category(patient.city, patient.country),
+            'timestamp': datetime.now().isoformat()
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/countries', methods=['GET'])
+def get_countries():
+    """Get list of available countries"""
+    try:
+        countries = []
+        for key, (code, name) in chatbot.get_country_list().items():
+            countries.append({
+                'code': code,
+                'name': name,
+                'key': key
+            })
+
+        return jsonify({
+            'success': True,
+            'countries': countries
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============= HEALTH CHECK ENDPOINTS =============
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Simple health check endpoint"""
+    email_configured = bool(get_system_email_config())
+
+    return jsonify({
+        'status': 'healthy',
+        'service': 'Public Therapeutic Companion Backend - Hybrid Database Version',
+        'version': '3.0-hybrid-db',
+        'features': [
+            'Public access - no login required',
+            'Patient enrollment and management',
+            'Daily check-ins (emotional, medication, physical)',
+            '7-day weekly tracking',
+            'Excel report generation',
+            'System email for all reports',
+            'Rate limiting for security',
+            'Activity logging',
+            'Database persistence (PostgreSQL/SQLite)'
+        ],
+        'configuration': {
+            'email_configured': email_configured,
+            'system_email': os.environ.get('SYSTEM_EMAIL', 'not_set'),
+            'access_code_required': bool(os.environ.get('ACCESS_CODE')),
+            'production_mode': bool(os.environ.get('PRODUCTION')),
+            'render_deployment': bool(os.environ.get('RENDER')),
+            'database_type': 'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'
+        },
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@app.route('/api/stats', methods=['GET'])
+def get_system_stats():
+    """Get system statistics"""
+    try:
+        stats = {
+            'patients': Patient.query.count(),
+            'checkins': CheckIn.query.count(),
+            'reports_generated': Report.query.count(),
+            'emails_sent_today': 0,
+            'database_type': 'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'
+        }
+
+        # Count today's emails
+        today = datetime.now().date()
+        emails_today = ActivityLog.query.filter(
+            ActivityLog.activity_type == 'email_sent',
+            db.func.date(ActivityLog.created_at) == today
+        ).count()
+        stats['emails_sent_today'] = emails_today
+
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============= ERROR HANDLERS =============
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        'error': 'Rate limit exceeded',
+        'message': 'Too many requests. Please try again later.'
+    }), 429
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({
+        'error': 'Internal server error',
+        'message': 'An unexpected error occurred'
+    }), 500
+
+
+if __name__ == "__main__":
+    print("=" * 80)
+    print("🏥 PUBLIC THERAPEUTIC COMPANION SYSTEM - HYBRID DATABASE VERSION")
+    print("=" * 80)
+    print("✅ Public access enabled - no login required")
+    print("✅ Database persistence for all data")
+    print("✅ Works on Render's free tier")
+    print("✅ Patient enrollment by therapists")
+    print("✅ Daily check-in tracking")
+    print("✅ Weekly Excel report generation")
+    print("✅ Automatic email delivery")
+    print("✅ Rate limiting for security")
+    print("=" * 80)
+
+    if os.environ.get('DATABASE_URL'):
+        print("📊 Database: PostgreSQL (Render)")
+    else:
+        print("📊 Database: SQLite (Local development)")
+
+    print("\n🔧 Configuration:")
+    email_config = get_system_email_config()
+    if email_config:
+        print(f"  - System email: {email_config['sender_email']} ✅")
+    else:
+        print("  - System email: NOT CONFIGURED ❌")
+        print("    Set SYSTEM_EMAIL and SYSTEM_EMAIL_PASSWORD environment variables")
+
+    if os.environ.get('ACCESS_CODE'):
+        print("  - Access code: ENABLED ✅")
+    else:
+        print("  - Access code: DISABLED (using default 'therapy2024')")
+
+    print("\n🌐 Server running at: http://localhost:5000")
+    print("=" * 80)
+
+    # Run in production mode if environment variable is set
+    if os.environ.get('PRODUCTION'):
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    else:
+        app.run(host='127.0.0.1', port=5000, debug=True)
