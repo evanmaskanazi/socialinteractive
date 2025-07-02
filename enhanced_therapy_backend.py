@@ -312,7 +312,7 @@ def login_therapist():
 # ============= PROTECTED THERAPY TRACKING ENDPOINTS =============
 
 @app.route('/api/therapy/save-patient', methods=['POST'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def save_therapy_patient():
     """Save therapy patient enrollment data"""
     try:
@@ -359,7 +359,7 @@ def save_therapy_patient():
 
 
 @app.route('/api/therapy/save-checkin', methods=['POST'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def save_therapy_checkin():
     """Save comprehensive daily check-in data"""
     try:
@@ -431,7 +431,7 @@ def save_therapy_checkin():
 
 
 @app.route('/api/therapy/get-week-data/<patient_id>/<week>', methods=['GET'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def get_week_data(patient_id, week):
     """Get all check-in data for a specific week"""
     try:
@@ -481,7 +481,7 @@ def get_week_data(patient_id, week):
 
 
 @app.route('/api/therapy/get-all-patients', methods=['GET'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def get_all_therapy_patients():
     """Get list of all enrolled therapy patients for this therapist"""
     try:
@@ -513,7 +513,7 @@ def get_all_therapy_patients():
 
 
 @app.route('/api/therapy/generate-excel-report/<patient_id>/<week>', methods=['GET'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 @limiter.limit("20 per hour")
 def generate_excel_report(patient_id, week):
     """Generate comprehensive Excel report for a patient's week"""
@@ -803,7 +803,7 @@ def generate_excel_report(patient_id, week):
 
 
 @app.route('/api/therapy/email-report', methods=['POST'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 @limiter.limit("10 per hour")
 def email_therapy_report():
     """Generate Excel report and send via email using system email account"""
@@ -1134,7 +1134,7 @@ def log_activity(activity_type, data):
 # ============= DATA PRIVACY ENDPOINTS =============
 
 @app.route('/api/privacy/delete-patient/<patient_id>', methods=['DELETE'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def delete_patient_data(patient_id):
     """GDPR compliance - delete all patient data"""
     try:
@@ -1175,7 +1175,7 @@ def delete_patient_data(patient_id):
 
 
 @app.route('/api/privacy/export-patient-data/<patient_id>', methods=['GET'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def export_patient_data(patient_id):
     """GDPR compliance - export all patient data"""
     try:
@@ -1259,7 +1259,7 @@ def health_check():
 
 
 @app.route('/api/stats', methods=['GET'])
-@mock_auth  # Using mock_auth instead of require_auth for development
+@require_auth  # Using mock_auth instead of require_auth for development
 def get_system_stats():
     """Get system statistics (admin only)"""
     if request.therapist['email'] != 'admin@system':
