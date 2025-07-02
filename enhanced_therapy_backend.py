@@ -2,6 +2,7 @@
 Public Therapeutic Companion Web Backend
 Designed for public deployment where anyone can use it
 System email sends all reports
+Updated to support Render persistent disk storage
 """
 
 from flask import Flask, request, jsonify, send_file, Response
@@ -33,6 +34,16 @@ except ImportError:
 # Import the social worker components
 from socialworkcountry import GlobalSocialWorkerChatbot, PatientProfile
 
+# Configure data directory based on environment
+if os.environ.get('RENDER'):
+    # Use Render's persistent disk
+    DATA_DIR = '/var/data/therapy_data'
+    print(f"Running on Render - using persistent disk at {DATA_DIR}")
+else:
+    # Use local directory for development
+    DATA_DIR = 'therapy_data'
+    print(f"Running locally - using directory {DATA_DIR}")
+
 # Create Flask app
 app = Flask(__name__)
 
@@ -49,13 +60,13 @@ limiter = Limiter(
     default_limits=["1000 per day", "100 per hour"]  # Generous limits for public use
 )
 
-# Create data directories
-os.makedirs('therapy_data', exist_ok=True)
-os.makedirs('therapy_data/patients', exist_ok=True)
-os.makedirs('therapy_data/checkins', exist_ok=True)
-os.makedirs('therapy_data/reports', exist_ok=True)
-os.makedirs('therapy_data/excel_exports', exist_ok=True)
-os.makedirs('therapy_data/logs', exist_ok=True)
+# Create data directories with the configured path
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, 'patients'), exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, 'checkins'), exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, 'reports'), exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, 'excel_exports'), exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, 'logs'), exist_ok=True)
 
 # Initialize the social worker chatbot
 chatbot = GlobalSocialWorkerChatbot()
@@ -75,7 +86,7 @@ def get_system_email_config():
         }
 
     # DEVELOPMENT: Check local config file
-    email_config_file = os.path.join('therapy_data', 'email_config.json')
+    email_config_file = os.path.join(DATA_DIR, 'email_config.json')
     if os.path.exists(email_config_file):
         with open(email_config_file, 'r') as f:
             return json.load(f)
@@ -96,11 +107,12 @@ def log_email_activity(patient_id, recipient, week, status):
     }
 
     # Create logs directory
-    os.makedirs('therapy_data/logs', exist_ok=True)
+    logs_dir = os.path.join(DATA_DIR, 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
 
     # Log to daily file
     log_date = datetime.now().strftime('%Y-%m-%d')
-    log_file = os.path.join('therapy_data', 'logs', f'email_log_{log_date}.json')
+    log_file = os.path.join(logs_dir, f'email_log_{log_date}.json')
 
     # Read existing log
     if os.path.exists(log_file):
@@ -128,7 +140,7 @@ def log_activity(activity_type, data):
 
     # Log to daily file
     log_date = datetime.now().strftime('%Y-%m-%d')
-    log_file = os.path.join('therapy_data', 'logs', f'activity_{log_date}.json')
+    log_file = os.path.join(DATA_DIR, 'logs', f'activity_{log_date}.json')
 
     # Read existing log
     if os.path.exists(log_file):
@@ -153,11 +165,11 @@ def index():
     if os.path.exists('therapy_tracker.html'):
         with open('therapy_tracker.html', 'r', encoding='utf-8') as f:
             return f.read()
-    elif os.path.exists('client00.html'):
-        with open('client00.html', 'r', encoding='utf-8') as f:
+    elif os.path.exists('client.html'):
+        with open('client.html', 'r', encoding='utf-8') as f:
             return f.read()
     else:
-        return """
+        return f"""
         <html>
         <body>
             <h1>Therapeutic Companion Server Running</h1>
@@ -170,7 +182,9 @@ def index():
                 <li>✅ Weekly Excel reports</li>
                 <li>✅ Automatic email delivery</li>
                 <li>✅ System email sends all reports</li>
+                <li>✅ Persistent data storage: {'Enabled on Render' if os.environ.get('RENDER') else 'Local storage'}</li>
             </ul>
+            <p><strong>Data directory:</strong> {DATA_DIR}</p>
         </body>
         </html>
         """
@@ -210,7 +224,7 @@ def save_therapy_patient():
 
         # Save patient data
         filename = f'patient_{patient_id}.json'
-        filepath = os.path.join('therapy_data', 'patients', filename)
+        filepath = os.path.join(DATA_DIR, 'patients', filename)
 
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(patient_data, f, indent=2, ensure_ascii=False)
@@ -250,7 +264,7 @@ def save_therapy_checkin():
             }), 400
 
         # Verify patient exists
-        patient_file = os.path.join('therapy_data', 'patients', f'patient_{patient_id}.json')
+        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
         if not os.path.exists(patient_file):
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
@@ -268,7 +282,7 @@ def save_therapy_checkin():
         checkin_data['submittedFrom'] = request.remote_addr
 
         # Create patient checkin directory
-        patient_dir = os.path.join('therapy_data', 'checkins', patient_id)
+        patient_dir = os.path.join(DATA_DIR, 'checkins', patient_id)
         os.makedirs(patient_dir, exist_ok=True)
 
         # Save check-in data
@@ -303,7 +317,7 @@ def get_week_data(patient_id, week):
     """Get all check-in data for a specific week"""
     try:
         week_data = {}
-        checkin_dir = os.path.join('therapy_data', 'checkins', patient_id)
+        checkin_dir = os.path.join(DATA_DIR, 'checkins', patient_id)
 
         if os.path.exists(checkin_dir):
             # Parse week string
@@ -343,7 +357,7 @@ def get_all_therapy_patients():
     """Get list of all enrolled therapy patients"""
     try:
         patients = []
-        patients_dir = os.path.join('therapy_data', 'patients')
+        patients_dir = os.path.join(DATA_DIR, 'patients')
 
         if os.path.exists(patients_dir):
             for filename in os.listdir(patients_dir):
@@ -371,7 +385,7 @@ def generate_excel_report(patient_id, week):
     """Generate comprehensive Excel report for a patient's week"""
     try:
         # Get patient data
-        patient_file = os.path.join('therapy_data', 'patients', f'patient_{patient_id}.json')
+        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
         if not os.path.exists(patient_file):
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
@@ -624,7 +638,7 @@ def generate_excel_report(patient_id, week):
         # Save Excel file
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"therapy_report_{patient_id}_{week}_{timestamp}.xlsx"
-        filepath = os.path.join('therapy_data', 'excel_exports', filename)
+        filepath = os.path.join(DATA_DIR, 'excel_exports', filename)
 
         wb.save(filepath)
 
@@ -659,7 +673,7 @@ def email_therapy_report():
         week = data.get('week')
 
         # Get patient data
-        patient_file = os.path.join('therapy_data', 'patients', f'patient_{patient_id}.json')
+        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
         if not os.path.exists(patient_file):
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
@@ -681,7 +695,7 @@ def email_therapy_report():
 
         # Find or generate Excel report
         excel_files = []
-        excel_dir = os.path.join('therapy_data', 'excel_exports')
+        excel_dir = os.path.join(DATA_DIR, 'excel_exports')
         if os.path.exists(excel_dir):
             for filename in os.listdir(excel_dir):
                 if filename.startswith(f"therapy_report_{patient_id}_{week}_"):
@@ -936,7 +950,7 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'Public Therapeutic Companion Backend',
-        'version': '2.0-public',
+        'version': '2.1-public-persistent',
         'features': [
             'Public access - no login required',
             'Patient enrollment and management',
@@ -945,13 +959,16 @@ def health_check():
             'Excel report generation',
             'System email for all reports',
             'Rate limiting for security',
-            'Activity logging'
+            'Activity logging',
+            'Persistent data storage' if os.environ.get('RENDER') else 'Local data storage'
         ],
         'configuration': {
             'email_configured': email_configured,
             'system_email': os.environ.get('SYSTEM_EMAIL', 'not_set'),
             'access_code_required': bool(os.environ.get('ACCESS_CODE')),
-            'production_mode': bool(os.environ.get('PRODUCTION'))
+            'production_mode': bool(os.environ.get('PRODUCTION')),
+            'render_deployment': bool(os.environ.get('RENDER')),
+            'data_directory': DATA_DIR
         },
         'timestamp': datetime.now().isoformat()
     })
@@ -965,16 +982,18 @@ def get_system_stats():
             'patients': 0,
             'checkins': 0,
             'reports_generated': 0,
-            'emails_sent_today': 0
+            'emails_sent_today': 0,
+            'data_directory': DATA_DIR,
+            'storage_type': 'Render Disk' if os.environ.get('RENDER') else 'Local Storage'
         }
 
         # Count patients
-        patients_dir = os.path.join('therapy_data', 'patients')
+        patients_dir = os.path.join(DATA_DIR, 'patients')
         if os.path.exists(patients_dir):
             stats['patients'] = len([f for f in os.listdir(patients_dir) if f.endswith('.json')])
 
         # Count checkins
-        checkins_dir = os.path.join('therapy_data', 'checkins')
+        checkins_dir = os.path.join(DATA_DIR, 'checkins')
         if os.path.exists(checkins_dir):
             for patient_dir in os.listdir(checkins_dir):
                 patient_checkins = os.path.join(checkins_dir, patient_dir)
@@ -982,13 +1001,13 @@ def get_system_stats():
                     stats['checkins'] += len([f for f in os.listdir(patient_checkins) if f.endswith('.json')])
 
         # Count reports
-        reports_dir = os.path.join('therapy_data', 'excel_exports')
+        reports_dir = os.path.join(DATA_DIR, 'excel_exports')
         if os.path.exists(reports_dir):
             stats['reports_generated'] = len([f for f in os.listdir(reports_dir) if f.endswith('.xlsx')])
 
         # Count today's emails
         log_date = datetime.now().strftime('%Y-%m-%d')
-        email_log = os.path.join('therapy_data', 'logs', f'email_log_{log_date}.json')
+        email_log = os.path.join(DATA_DIR, 'logs', f'email_log_{log_date}.json')
         if os.path.exists(email_log):
             with open(email_log, 'r') as f:
                 logs = json.load(f)
@@ -1036,12 +1055,16 @@ if __name__ == "__main__":
     print("✅ Weekly Excel report generation")
     print("✅ Automatic email delivery")
     print("✅ Rate limiting for security")
+    print("✅ Persistent data storage configured")
     print("=" * 80)
-    print("\n📁 Data storage locations:")
-    print("  - therapy_data/patients/ (patient profiles)")
-    print("  - therapy_data/checkins/ (daily check-ins)")
-    print("  - therapy_data/excel_exports/ (generated reports)")
-    print("  - therapy_data/logs/ (activity logs)")
+    print("\n📁 Data storage configuration:")
+    print(f"  - Data directory: {DATA_DIR}")
+    print(f"  - Storage type: {'Render Disk (Persistent)' if os.environ.get('RENDER') else 'Local Storage'}")
+    print(f"  - Patients: {DATA_DIR}/patients/")
+    print(f"  - Check-ins: {DATA_DIR}/checkins/")
+    print(f"  - Reports: {DATA_DIR}/excel_exports/")
+    print(f"  - Logs: {DATA_DIR}/logs/")
+
     print("\n🔧 Configuration:")
     email_config = get_system_email_config()
     if email_config:
