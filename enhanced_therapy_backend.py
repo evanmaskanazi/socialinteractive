@@ -1,8 +1,7 @@
 """
-Public Therapeutic Companion Web Backend
-Designed for public deployment where anyone can use it
-System email sends all reports
-Updated to support Render persistent disk storage
+Public Therapeutic Companion Web Backend - Hybrid Database Version
+Uses database for persistence but maintains JSON structure
+Works on Render's free tier with PostgreSQL
 """
 
 from flask import Flask, request, jsonify, send_file, Response
@@ -22,6 +21,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from sqlalchemy import and_
+import tempfile
+
+# Import database models
+from database_models import db, Patient, CheckIn, Report, ActivityLog
 
 # Optional: Load environment variables from .env file for local development
 try:
@@ -34,18 +38,30 @@ except ImportError:
 # Import the social worker components
 from socialworkcountry import GlobalSocialWorkerChatbot, PatientProfile
 
-# Configure data directory based on environment
-if os.environ.get('RENDER'):
-    # Use Render's persistent disk
-    DATA_DIR = '/var/data/therapy_data'
-    print(f"Running on Render - using persistent disk at {DATA_DIR}")
-else:
-    # Use local directory for development
-    DATA_DIR = 'therapy_data'
-    print(f"Running locally - using directory {DATA_DIR}")
-
 # Create Flask app
 app = Flask(__name__)
+
+# Database configuration
+if os.environ.get('DATABASE_URL'):
+    # Render PostgreSQL
+    database_url = os.environ.get('DATABASE_URL')
+    # Fix for SQLAlchemy (Render uses postgres:// but SQLAlchemy needs postgresql://)
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Local SQLite for development
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///therapy_data.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+    print("Database tables created successfully")
 
 # Configure CORS for production
 if os.environ.get('PRODUCTION'):
@@ -59,14 +75,6 @@ limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["1000 per day", "100 per hour"]  # Generous limits for public use
 )
-
-# Create data directories with the configured path
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(os.path.join(DATA_DIR, 'patients'), exist_ok=True)
-os.makedirs(os.path.join(DATA_DIR, 'checkins'), exist_ok=True)
-os.makedirs(os.path.join(DATA_DIR, 'reports'), exist_ok=True)
-os.makedirs(os.path.join(DATA_DIR, 'excel_exports'), exist_ok=True)
-os.makedirs(os.path.join(DATA_DIR, 'logs'), exist_ok=True)
 
 # Initialize the social worker chatbot
 chatbot = GlobalSocialWorkerChatbot()
@@ -85,20 +93,13 @@ def get_system_email_config():
             'smtp_port': int(os.environ.get('SMTP_PORT', '587'))
         }
 
-    # DEVELOPMENT: Check local config file
-    email_config_file = os.path.join(DATA_DIR, 'email_config.json')
-    if os.path.exists(email_config_file):
-        with open(email_config_file, 'r') as f:
-            return json.load(f)
-
     # No configuration found
     return None
 
 
 def log_email_activity(patient_id, recipient, week, status):
-    """Log email sending activity"""
-    log_entry = {
-        'timestamp': datetime.now().isoformat(),
+    """Log email sending activity to database"""
+    log_data = {
         'patient_id': patient_id,
         'recipient': recipient,
         'week': week,
@@ -106,55 +107,26 @@ def log_email_activity(patient_id, recipient, week, status):
         'system_email': os.environ.get('SYSTEM_EMAIL', 'not_configured')
     }
 
-    # Create logs directory
-    logs_dir = os.path.join(DATA_DIR, 'logs')
-    os.makedirs(logs_dir, exist_ok=True)
+    log_entry = ActivityLog(
+        activity_type='email_sent',
+        ip_address=request.remote_addr if request else 'system'
+    )
+    log_entry.set_data(log_data)
 
-    # Log to daily file
-    log_date = datetime.now().strftime('%Y-%m-%d')
-    log_file = os.path.join(logs_dir, f'email_log_{log_date}.json')
-
-    # Read existing log
-    if os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            logs = json.load(f)
-    else:
-        logs = []
-
-    # Append new entry
-    logs.append(log_entry)
-
-    # Save log
-    with open(log_file, 'w') as f:
-        json.dump(logs, f, indent=2)
+    db.session.add(log_entry)
+    db.session.commit()
 
 
 def log_activity(activity_type, data):
-    """Log general system activity"""
-    log_entry = {
-        'timestamp': datetime.now().isoformat(),
-        'activity': activity_type,
-        'data': data,
-        'ip_address': request.remote_addr if request else 'system'
-    }
+    """Log general system activity to database"""
+    log_entry = ActivityLog(
+        activity_type=activity_type,
+        ip_address=request.remote_addr if request else 'system'
+    )
+    log_entry.set_data(data)
 
-    # Log to daily file
-    log_date = datetime.now().strftime('%Y-%m-%d')
-    log_file = os.path.join(DATA_DIR, 'logs', f'activity_{log_date}.json')
-
-    # Read existing log
-    if os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            logs = json.load(f)
-    else:
-        logs = []
-
-    # Append new entry
-    logs.append(log_entry)
-
-    # Save log
-    with open(log_file, 'w') as f:
-        json.dump(logs, f, indent=2)
+    db.session.add(log_entry)
+    db.session.commit()
 
 
 # ============= PUBLIC ENDPOINTS =============
@@ -173,7 +145,7 @@ def index():
         <html>
         <body>
             <h1>Therapeutic Companion Server Running</h1>
-            <p>Please ensure therapy_tracker.html is in the same directory as this script.</p>
+            <p>Database-backed version for Render deployment</p>
             <h2>Features:</h2>
             <ul>
                 <li>✅ Public access - no login required</li>
@@ -182,9 +154,9 @@ def index():
                 <li>✅ Weekly Excel reports</li>
                 <li>✅ Automatic email delivery</li>
                 <li>✅ System email sends all reports</li>
-                <li>✅ Persistent data storage: {'Enabled on Render' if os.environ.get('RENDER') else 'Local storage'}</li>
+                <li>✅ Database persistence (PostgreSQL/SQLite)</li>
             </ul>
-            <p><strong>Data directory:</strong> {DATA_DIR}</p>
+            <p><strong>Database:</strong> {'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'}</p>
         </body>
         </html>
         """
@@ -222,12 +194,18 @@ def save_therapy_patient():
         patient_data['enrolledFrom'] = request.remote_addr
         patient_data['weeklyReports'] = []
 
-        # Save patient data
-        filename = f'patient_{patient_id}.json'
-        filepath = os.path.join(DATA_DIR, 'patients', filename)
+        # Check if patient exists
+        patient = Patient.query.get(patient_id)
+        if patient:
+            # Update existing patient
+            patient.set_data(patient_data)
+        else:
+            # Create new patient
+            patient = Patient(id=patient_id)
+            patient.set_data(patient_data)
+            db.session.add(patient)
 
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(patient_data, f, indent=2, ensure_ascii=False)
+        db.session.commit()
 
         # Log activity
         log_activity('patient_enrolled', {
@@ -238,10 +216,11 @@ def save_therapy_patient():
         return jsonify({
             'success': True,
             'message': 'Patient enrolled successfully',
-            'filename': filename
+            'patient_id': patient_id
         })
 
     except Exception as e:
+        db.session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
@@ -264,8 +243,8 @@ def save_therapy_checkin():
             }), 400
 
         # Verify patient exists
-        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
-        if not os.path.exists(patient_file):
+        patient = Patient.query.get(patient_id)
+        if not patient:
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
         # Validate check-in data
@@ -281,17 +260,20 @@ def save_therapy_checkin():
         checkin_data['serverTimestamp'] = datetime.now().isoformat()
         checkin_data['submittedFrom'] = request.remote_addr
 
-        # Create patient checkin directory
-        patient_dir = os.path.join(DATA_DIR, 'checkins', patient_id)
-        os.makedirs(patient_dir, exist_ok=True)
-
-        # Save check-in data
+        # Check if check-in exists for this date
         date = checkin_data.get('date')
-        filename = f'checkin_{date}.json'
-        filepath = os.path.join(patient_dir, filename)
+        checkin = CheckIn.query.filter_by(patient_id=patient_id, date=date).first()
 
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(checkin_data, f, indent=2, ensure_ascii=False)
+        if checkin:
+            # Update existing check-in
+            checkin.set_data(checkin_data)
+        else:
+            # Create new check-in
+            checkin = CheckIn(patient_id=patient_id, date=date)
+            checkin.set_data(checkin_data)
+            db.session.add(checkin)
+
+        db.session.commit()
 
         # Log activity
         log_activity('checkin_recorded', {
@@ -302,10 +284,11 @@ def save_therapy_checkin():
         return jsonify({
             'success': True,
             'message': 'Daily check-in saved successfully',
-            'filename': filename
+            'date': date
         })
 
     except Exception as e:
+        db.session.rollback()
         return jsonify({
             'success': False,
             'error': str(e)
@@ -317,28 +300,25 @@ def get_week_data(patient_id, week):
     """Get all check-in data for a specific week"""
     try:
         week_data = {}
-        checkin_dir = os.path.join(DATA_DIR, 'checkins', patient_id)
 
-        if os.path.exists(checkin_dir):
-            # Parse week string
-            year, week_num = week.split('-W')
-            year = int(year)
-            week_num = int(week_num)
+        # Parse week string
+        year, week_num = week.split('-W')
+        year = int(year)
+        week_num = int(week_num)
 
-            # Calculate week dates
-            jan_4 = datetime(year, 1, 4)
-            week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
-            week_start = week_1_monday + timedelta(weeks=week_num - 1)
+        # Calculate week dates
+        jan_4 = datetime(year, 1, 4)
+        week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+        week_start = week_1_monday + timedelta(weeks=week_num - 1)
 
-            # Get data for each day
-            for i in range(7):
-                date = week_start + timedelta(days=i)
-                date_str = date.strftime('%Y-%m-%d')
+        # Get data for each day
+        for i in range(7):
+            date = week_start + timedelta(days=i)
+            date_str = date.strftime('%Y-%m-%d')
 
-                checkin_file = os.path.join(checkin_dir, f'checkin_{date_str}.json')
-                if os.path.exists(checkin_file):
-                    with open(checkin_file, 'r', encoding='utf-8') as f:
-                        week_data[date_str] = json.load(f)
+            checkin = CheckIn.query.filter_by(patient_id=patient_id, date=date_str).first()
+            if checkin:
+                week_data[date_str] = checkin.get_data()
 
         return jsonify({
             'success': True,
@@ -357,15 +337,14 @@ def get_all_therapy_patients():
     """Get list of all enrolled therapy patients"""
     try:
         patients = []
-        patients_dir = os.path.join(DATA_DIR, 'patients')
 
-        if os.path.exists(patients_dir):
-            for filename in os.listdir(patients_dir):
-                if filename.startswith('patient_') and filename.endswith('.json'):
-                    filepath = os.path.join(patients_dir, filename)
-                    with open(filepath, 'r', encoding='utf-8') as f:
-                        patient_data = json.load(f)
-                        patients.append(patient_data)
+        # Query all patients
+        all_patients = Patient.query.all()
+
+        for patient in all_patients:
+            patient_data = patient.get_data()
+            patient_data['patientId'] = patient.id
+            patients.append(patient_data)
 
         return jsonify({
             'success': True,
@@ -385,12 +364,12 @@ def generate_excel_report(patient_id, week):
     """Generate comprehensive Excel report for a patient's week"""
     try:
         # Get patient data
-        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
-        if not os.path.exists(patient_file):
+        patient = Patient.query.get(patient_id)
+        if not patient:
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
-        with open(patient_file, 'r', encoding='utf-8') as f:
-            patient_data = json.load(f)
+        patient_data = patient.get_data()
+        patient_data['patientId'] = patient_id
 
         # Get week data
         week_response = get_week_data(patient_id, week)
@@ -635,12 +614,28 @@ def generate_excel_report(patient_id, week):
                 adjusted_width = min(max_length + 2, 50)
                 sheet.column_dimensions[column_letter].width = adjusted_width
 
-        # Save Excel file
+        # Save Excel file to temporary file
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"therapy_report_{patient_id}_{week}_{timestamp}.xlsx"
-        filepath = os.path.join(DATA_DIR, 'excel_exports', filename)
 
-        wb.save(filepath)
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+        wb.save(temp_file.name)
+        temp_file.close()
+
+        # Store report metadata in database
+        report = Report(
+            patient_id=patient_id,
+            week=week,
+            filename=filename
+        )
+
+        # Read file data
+        with open(temp_file.name, 'rb') as f:
+            report.file_data = f.read()
+
+        db.session.add(report)
+        db.session.commit()
 
         # Log activity
         log_activity('report_generated', {
@@ -648,13 +643,18 @@ def generate_excel_report(patient_id, week):
             'week': week
         })
 
-        # Return file as download
-        return send_file(
-            filepath,
+        # Send file
+        response = send_file(
+            temp_file.name,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             as_attachment=True,
             download_name=filename
         )
+
+        # Clean up temp file after sending
+        os.unlink(temp_file.name)
+
+        return response
 
     except Exception as e:
         return jsonify({
@@ -673,12 +673,12 @@ def email_therapy_report():
         week = data.get('week')
 
         # Get patient data
-        patient_file = os.path.join(DATA_DIR, 'patients', f'patient_{patient_id}.json')
-        if not os.path.exists(patient_file):
+        patient = Patient.query.get(patient_id)
+        if not patient:
             return jsonify({'success': False, 'error': 'Patient not found'}), 404
 
-        with open(patient_file, 'r', encoding='utf-8') as f:
-            patient_data = json.load(f)
+        patient_data = patient.get_data()
+        patient_data['patientId'] = patient_id
 
         # Get system email configuration
         email_config = get_system_email_config()
@@ -694,29 +694,21 @@ def email_therapy_report():
             })
 
         # Find or generate Excel report
-        excel_files = []
-        excel_dir = os.path.join(DATA_DIR, 'excel_exports')
-        if os.path.exists(excel_dir):
-            for filename in os.listdir(excel_dir):
-                if filename.startswith(f"therapy_report_{patient_id}_{week}_"):
-                    excel_files.append(os.path.join(excel_dir, filename))
+        report = Report.query.filter_by(patient_id=patient_id, week=week).order_by(Report.created_at.desc()).first()
 
-        if not excel_files:
+        if not report or not report.file_data:
             # Generate the Excel report
             excel_response = generate_excel_report(patient_id, week)
-            # Try again to find the file
-            for filename in os.listdir(excel_dir):
-                if filename.startswith(f"therapy_report_{patient_id}_{week}_"):
-                    excel_files.append(os.path.join(excel_dir, filename))
+            # Query again
+            report = Report.query.filter_by(patient_id=patient_id, week=week).order_by(Report.created_at.desc()).first()
 
-        if not excel_files:
+        if not report or not report.file_data:
             return jsonify({
                 'success': False,
                 'error': 'Could not generate Excel report'
             }), 500
 
-        excel_filepath = max(excel_files, key=os.path.getctime)
-        excel_filename = os.path.basename(excel_filepath)
+        excel_filename = report.filename
 
         # Calculate statistics for email content
         week_response = get_week_data(patient_id, week)
@@ -782,16 +774,15 @@ Report generated on: {datetime.now().strftime('%Y-%m-%d at %H:%M')}
             # Attach the email body
             msg.attach(MIMEText(email_content, 'plain'))
 
-            # Attach the Excel file
-            with open(excel_filepath, 'rb') as attachment:
-                part = MIMEBase('application', 'octet-stream')
-                part.set_payload(attachment.read())
-                encoders.encode_base64(part)
-                part.add_header(
-                    'Content-Disposition',
-                    f'attachment; filename="{excel_filename}"'
-                )
-                msg.attach(part)
+            # Attach the Excel file from database
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(report.file_data)
+            encoders.encode_base64(part)
+            part.add_header(
+                'Content-Disposition',
+                f'attachment; filename="{excel_filename}"'
+            )
+            msg.attach(part)
 
             # Send the email
             server = smtplib.SMTP(email_config['smtp_server'], email_config['smtp_port'])
@@ -949,8 +940,8 @@ def health_check():
 
     return jsonify({
         'status': 'healthy',
-        'service': 'Public Therapeutic Companion Backend',
-        'version': '2.1-public-persistent',
+        'service': 'Public Therapeutic Companion Backend - Hybrid Database Version',
+        'version': '3.0-hybrid-db',
         'features': [
             'Public access - no login required',
             'Patient enrollment and management',
@@ -960,7 +951,7 @@ def health_check():
             'System email for all reports',
             'Rate limiting for security',
             'Activity logging',
-            'Persistent data storage' if os.environ.get('RENDER') else 'Local data storage'
+            'Database persistence (PostgreSQL/SQLite)'
         ],
         'configuration': {
             'email_configured': email_configured,
@@ -968,7 +959,7 @@ def health_check():
             'access_code_required': bool(os.environ.get('ACCESS_CODE')),
             'production_mode': bool(os.environ.get('PRODUCTION')),
             'render_deployment': bool(os.environ.get('RENDER')),
-            'data_directory': DATA_DIR
+            'database_type': 'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'
         },
         'timestamp': datetime.now().isoformat()
     })
@@ -979,39 +970,20 @@ def get_system_stats():
     """Get system statistics"""
     try:
         stats = {
-            'patients': 0,
-            'checkins': 0,
-            'reports_generated': 0,
+            'patients': Patient.query.count(),
+            'checkins': CheckIn.query.count(),
+            'reports_generated': Report.query.count(),
             'emails_sent_today': 0,
-            'data_directory': DATA_DIR,
-            'storage_type': 'Render Disk' if os.environ.get('RENDER') else 'Local Storage'
+            'database_type': 'PostgreSQL' if os.environ.get('DATABASE_URL') else 'SQLite'
         }
 
-        # Count patients
-        patients_dir = os.path.join(DATA_DIR, 'patients')
-        if os.path.exists(patients_dir):
-            stats['patients'] = len([f for f in os.listdir(patients_dir) if f.endswith('.json')])
-
-        # Count checkins
-        checkins_dir = os.path.join(DATA_DIR, 'checkins')
-        if os.path.exists(checkins_dir):
-            for patient_dir in os.listdir(checkins_dir):
-                patient_checkins = os.path.join(checkins_dir, patient_dir)
-                if os.path.isdir(patient_checkins):
-                    stats['checkins'] += len([f for f in os.listdir(patient_checkins) if f.endswith('.json')])
-
-        # Count reports
-        reports_dir = os.path.join(DATA_DIR, 'excel_exports')
-        if os.path.exists(reports_dir):
-            stats['reports_generated'] = len([f for f in os.listdir(reports_dir) if f.endswith('.xlsx')])
-
         # Count today's emails
-        log_date = datetime.now().strftime('%Y-%m-%d')
-        email_log = os.path.join(DATA_DIR, 'logs', f'email_log_{log_date}.json')
-        if os.path.exists(email_log):
-            with open(email_log, 'r') as f:
-                logs = json.load(f)
-                stats['emails_sent_today'] = sum(1 for log in logs if log['status'] == 'sent')
+        today = datetime.now().date()
+        emails_today = ActivityLog.query.filter(
+            ActivityLog.activity_type == 'email_sent',
+            db.func.date(ActivityLog.created_at) == today
+        ).count()
+        stats['emails_sent_today'] = emails_today
 
         return jsonify({
             'success': True,
@@ -1046,24 +1018,22 @@ def internal_error(error):
 
 if __name__ == "__main__":
     print("=" * 80)
-    print("🏥 PUBLIC THERAPEUTIC COMPANION SYSTEM")
+    print("🏥 PUBLIC THERAPEUTIC COMPANION SYSTEM - HYBRID DATABASE VERSION")
     print("=" * 80)
     print("✅ Public access enabled - no login required")
-    print("✅ System email sends all reports")
+    print("✅ Database persistence for all data")
+    print("✅ Works on Render's free tier")
     print("✅ Patient enrollment by therapists")
     print("✅ Daily check-in tracking")
     print("✅ Weekly Excel report generation")
     print("✅ Automatic email delivery")
     print("✅ Rate limiting for security")
-    print("✅ Persistent data storage configured")
     print("=" * 80)
-    print("\n📁 Data storage configuration:")
-    print(f"  - Data directory: {DATA_DIR}")
-    print(f"  - Storage type: {'Render Disk (Persistent)' if os.environ.get('RENDER') else 'Local Storage'}")
-    print(f"  - Patients: {DATA_DIR}/patients/")
-    print(f"  - Check-ins: {DATA_DIR}/checkins/")
-    print(f"  - Reports: {DATA_DIR}/excel_exports/")
-    print(f"  - Logs: {DATA_DIR}/logs/")
+
+    if os.environ.get('DATABASE_URL'):
+        print("📊 Database: PostgreSQL (Render)")
+    else:
+        print("📊 Database: SQLite (Local development)")
 
     print("\n🔧 Configuration:")
     email_config = get_system_email_config()
@@ -1076,7 +1046,7 @@ if __name__ == "__main__":
     if os.environ.get('ACCESS_CODE'):
         print("  - Access code: ENABLED ✅")
     else:
-        print("  - Access code: DISABLED (anyone can enroll patients)")
+        print("  - Access code: DISABLED (using default 'therapy2024')")
 
     print("\n🌐 Server running at: http://localhost:5000")
     print("=" * 80)
