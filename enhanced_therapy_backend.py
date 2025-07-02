@@ -40,7 +40,7 @@ from socialworkcountry import GlobalSocialWorkerChatbot, PatientProfile
 
 # Create Flask app
 app = Flask(__name__)
-
+print("Flask app created successfully!")
 # Database configuration
 if os.environ.get('DATABASE_URL'):
     # Render PostgreSQL
