@@ -4,8 +4,14 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn enhanced_therapy_backend:app"
+    disk:
+      name: therapy-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PRODUCTION
+        value: true
+      - key: RENDER
         value: true
       - key: SYSTEM_EMAIL
         sync: false
@@ -18,4 +24,8 @@ services:
       - key: SYSTEM_NAME
         value: Therapeutic Companion System
       - key: ACCESS_CODE
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: REPLY_TO_EMAIL
         sync: false
