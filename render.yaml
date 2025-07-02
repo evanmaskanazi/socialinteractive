@@ -3,7 +3,7 @@ services:
     name: therapy-companion
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn test:app"
+    startCommand: "gunicorn enhanced_therapy_backend:app"
     disk:
       name: therapy-data
       mountPath: /var/data
